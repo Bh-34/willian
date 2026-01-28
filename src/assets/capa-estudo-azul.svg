@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#1e88e5" />
+      <stop offset="1" stop-color="#6b46c1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#g)" rx="20"/>
+  <text x="50%" y="50%" text-anchor="middle" fill="#fff" font-size="36" font-family="sans-serif" dy="12">Tech Store</text>
+</svg>
