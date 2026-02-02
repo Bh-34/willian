@@ -1,48 +1,95 @@
 <template>
   <nav class="navbar">
-    <div style="font-weight:700">Tech Store</div>
-    <router-link to="/perfil" class="btn-perfil">👤 Perfil</router-link>
-    <div style="margin-left:auto; display:flex; gap:12px; align-items:center">
-      <router-link to="/">Dashboard</router-link>
-      <router-link to="/produtos">Produtos</router-link>
-      <router-link v-if="!logged" to="/cadastro">Cadastro</router-link>
+    <div class="logo">Tech Store</div>
 
-      <div v-if="logged" class="user-area">
-        <span class="user-email">{{ userEmail }}</span>
+    <div class="nav-right">
+      <router-link to="/">Dashboard</router-link>
+
+      <!-- NÃO LOGADO -->
+      <router-link v-if="!logged" to="/cadastro">Cadastro</router-link>
+      <router-link v-if="!logged" to="/login">Entrar</router-link>
+
+      <!-- LOGADO -->
+      <div v-else class="user-area">
+        <span class="user-name">👋 {{ userName }}</span>
         <button class="btn-logout" @click="doLogout">Sair</button>
       </div>
-
-      <!-- mostra apenas quando deslogado; usa rota nomeada para consistência -->
-      <router-link v-else :to="{ name: 'Login' }">Entrar</router-link>
     </div>
   </nav>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
-import { user, logout, isAuthenticated } from '@/services/authService'
 import { useRouter } from 'vue-router'
+import { useUser, isAuthenticated, logout } from '@/services/authService'
 
 export default defineComponent({
   setup() {
     const router = useRouter()
+    const user = useUser()
+
     const logged = computed(() => isAuthenticated())
-    const userEmail = computed(() => user.value?.email || '')
+    const userName = computed(() => {
+  if (!user.value) return ''
+  return user.value.nome || user.value.name || user.value.email || ''
+})
+console.log('USER:', user.value)
 
     function doLogout() {
       logout()
       router.push('/login')
     }
 
-    return { logged, userEmail, doLogout }
+    return {
+      logged,
+      userName,
+      doLogout
+    }
   }
 })
 </script>
 
 <style scoped>
-.navbar{ align-items:center }
-.btn-perfil{ color:inherit; text-decoration:none; font-weight:600; font-size:14px; margin-left:16px; padding:8px 12px; background:rgba(255,255,255,0.1); border-radius:6px; transition:all 0.2s; display:flex; align-items:center; gap:6px }
-.btn-perfil:hover{ background:rgba(255,255,255,0.2) }
-.user-email{ margin-right:8px; font-weight:600; font-size:14px }
-.btn-logout{ background:transparent; border:1px solid rgba(255,255,255,0.14); color:inherit; padding:6px 8px; border-radius:6px; cursor:pointer }
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  background: #111827;
+  color: #fff;
+}
+
+.logo {
+  font-weight: 700;
+}
+
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: inherit;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-logout:hover {
+  background: rgba(255,255,255,0.1);
+}
 </style>

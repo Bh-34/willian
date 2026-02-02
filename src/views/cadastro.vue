@@ -13,6 +13,11 @@
           <input v-model="email" type="email" placeholder="seu@exemplo.com" required />
         </label>
 
+          <label>
+          cpf
+          <input v-model="cpf" type="text" placeholder="Seu cpf" required />
+        </label>
+
         <label>
           Telefone
           <input v-model="telefone" type="tel" placeholder="(XX) X XXXX-XXXX" />
@@ -44,6 +49,7 @@ export default defineComponent({
   setup() {
     const nome = ref('')
     const email = ref('')
+    const cpf = ref('')
     const telefone = ref('')
     const senha = ref('')
     const loading = ref(false)
@@ -71,7 +77,7 @@ export default defineComponent({
 
       loading.value = true
       try {
-        await register({ nome: nome.value, email: email.value, senha: senha.value, telefone: telefone.value })
+        await register({ nome: nome.value, email: email.value, cpf: cpf.value, senha: senha.value, telefone: telefone.value })
         success.value = 'Conta criada com sucesso! Você já está logado.'
         setTimeout(() => router.push('/'), 900)
       } catch (e: any) {
@@ -81,7 +87,7 @@ export default defineComponent({
       }
     }
 
-    return { nome, email, telefone, senha, loading, error, success, submit }
+    return { nome, email, telefone, cpf,  senha, loading, error, success, submit }
   }
 })
 </script>

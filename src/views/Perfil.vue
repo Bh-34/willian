@@ -1,12 +1,12 @@
-<template>
+ <template>
   <div class="perfil-container">
     <div class="perfil-header">
       <h1>Meu Perfil</h1>
       <p class="subtitle">Gerencie suas informações pessoais</p>
     </div>
-
-    <div class="perfil-content">
-      <!-- Card de Informações Pessoais -->
+   </Div> 
+</template>
+    <!-- <div class="perfil-content">
       <div class="card perfil-card">
         <div class="card-header">
           <h2>Informações Pessoais</h2>
@@ -50,7 +50,6 @@
         </div>
       </div>
 
-      <!-- Card de Segurança -->
       <div class="card perfil-card">
         <div class="card-header">
           <h2>Segurança</h2>
@@ -79,39 +78,11 @@
       </div>
     </div>
   </div>
-</template>
+</template> -->
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { user as authUser } from '@/services/authService'
 
-const editMode = ref(false)
-const showChangePassword = ref(false)
 
-const user = authUser
-
-const editForm = reactive({
-  nome: authUser.value?.nome || '',
-  email: authUser.value?.email || '',
-  telefone: authUser.value?.telefone || ''
-})
-
-function saveChanges() {
-  if (authUser.value) {
-    authUser.value.nome = editForm.nome
-    authUser.value.email = editForm.email
-    authUser.value.telefone = editForm.telefone
-    localStorage.setItem('auth_user', JSON.stringify(authUser.value))
-    editMode.value = false
-  }
-}
-
-function cancelEdit() {
-  editForm.nome = authUser.value?.nome || ''
-  editForm.email = authUser.value?.email || ''
-  editForm.telefone = authUser.value?.telefone || ''
-  editMode.value = false
-}
 </script>
 
 <style scoped>
