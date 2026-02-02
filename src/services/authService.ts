@@ -65,4 +65,18 @@ export function isAuthenticated(): boolean {
   return !!localStorage.getItem(STORAGE_TOKEN_KEY)
 }
 
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!user.value) return reject(new Error('Usuário não autenticado'))
+      const found: any = initialUsers.find((u: any) => u.email === user.value!.email)
+      if (!found) return reject(new Error('Usuário não encontrado'))
+      if (found.password !== currentPassword) return reject(new Error('Senha atual incorreta'))
+      found.password = newPassword
+      saveUsers(initialUsers)
+      resolve()
+    }, 400)
+  })
+}
+
 export { user }

@@ -4,13 +4,11 @@
     <router-link to="/perfil" class="btn-perfil">👤 Perfil</router-link>
     <div style="margin-left:auto; display:flex; gap:12px; align-items:center">
       <router-link to="/">Dashboard</router-link>
-      <router-link to="/produtos">Produtos</router-link>
       <router-link v-if="!logged" to="/cadastro">Cadastro</router-link>
 
-      <div v-if="logged" class="user-area">
-        <span class="user-email">{{ userEmail }}</span>
-        <button class="btn-logout" @click="doLogout">Sair</button>
-      </div>
+        <div v-if="logged" class="user-area">
+          <span class="user-email">{{ userEmail }}</span>
+        </div>
 
       <!-- mostra apenas quando deslogado; usa rota nomeada para consistência -->
       <router-link v-else :to="{ name: 'Login' }">Entrar</router-link>
@@ -20,21 +18,14 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
-import { user, logout, isAuthenticated } from '@/services/authService'
-import { useRouter } from 'vue-router'
+import { user } from '@/services/authService'
 
 export default defineComponent({
   setup() {
-    const router = useRouter()
-    const logged = computed(() => isAuthenticated())
+    const logged = computed(() => !!user.value)
     const userEmail = computed(() => user.value?.email || '')
 
-    function doLogout() {
-      logout()
-      router.push('/login')
-    }
-
-    return { logged, userEmail, doLogout }
+    return { logged, userEmail }
   }
 })
 </script>

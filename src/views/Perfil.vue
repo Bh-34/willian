@@ -6,7 +6,7 @@
     </div>
 
     <div class="perfil-content">
-      <!-- Card de Informações Pessoais -->
+     
       <div class="card perfil-card">
         <div class="card-header">
           <h2>Informações Pessoais</h2>
@@ -50,7 +50,7 @@
         </div>
       </div>
 
-      <!-- Card de Segurança -->
+      
       <div class="card perfil-card">
         <div class="card-header">
           <h2>Segurança</h2>
@@ -59,22 +59,27 @@
           <button class="btn btn-secondary" @click="showChangePassword = !showChangePassword">
             🔒 Alterar Senha
           </button>
-          <button class="btn btn-danger">🚪 Fazer Logout</button>
+          <button class="btn btn-danger" @click="doLogout">🚪 Fazer Logout</button>
         </div>
         <div v-if="showChangePassword" class="password-form">
           <div class="form-group">
             <label>Senha Atual</label>
-            <input type="password" placeholder="Digite sua senha atual" />
+            <input v-model="currentPassword" type="password" placeholder="Digite sua senha atual" />
           </div>
           <div class="form-group">
             <label>Nova Senha</label>
-            <input type="password" placeholder="Digite sua nova senha" />
+            <input v-model="newPassword" type="password" placeholder="Digite sua nova senha" />
+            <small v-if="newPassword && newPassword.length < 8" style="color:#b91c1c">A senha precisa ter ao menos 8 caracteres.</small>
           </div>
           <div class="form-group">
             <label>Confirmar Nova Senha</label>
-            <input type="password" placeholder="Confirme sua nova senha" />
+            <input v-model="confirmPassword" type="password" placeholder="Confirme sua nova senha" />
           </div>
-          <button class="btn btn-primary">💾 Atualizar Senha</button>
+
+          <p v-if="passwordError" style="color:#b91c1c">{{ passwordError }}</p>
+          <p v-if="passwordSuccess" style="color:#059669">{{ passwordSuccess }}</p>
+
+          <button class="btn btn-primary" :disabled="isUpdating || !canSubmit" @click="updatePassword">💾 Atualizar Senha</button>
         </div>
       </div>
     </div>
@@ -82,8 +87,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { user as authUser } from '@/services/authService'
+import { ref, reactive, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { user as authUser, logout, changePassword } from '@/services/authService'
 
 const editMode = ref(false)
 const showChangePassword = ref(false)
@@ -95,6 +101,25 @@ const editForm = reactive({
   email: authUser.value?.email || '',
   telefone: authUser.value?.telefone || ''
 })
+
+// password form state
+const currentPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
+const passwordError = ref('')
+const passwordSuccess = ref('')
+const isUpdating = ref(false)
+
+const canSubmit = computed(() => {
+  return newPassword.value.length >= 8 && newPassword.value === confirmPassword.value && currentPassword.value.length > 0
+})
+
+const router = useRouter()
+
+function doLogout() {
+  logout()
+  router.push('/login')
+}
 
 function saveChanges() {
   if (authUser.value) {
@@ -111,6 +136,33 @@ function cancelEdit() {
   editForm.email = authUser.value?.email || ''
   editForm.telefone = authUser.value?.telefone || ''
   editMode.value = false
+}
+
+async function updatePassword() {
+  passwordError.value = ''
+  passwordSuccess.value = ''
+  if (newPassword.value.length < 8) {
+    passwordError.value = 'A nova senha precisa ter pelo menos 8 caracteres.'
+    return
+  }
+  if (newPassword.value !== confirmPassword.value) {
+    passwordError.value = 'A confirmação da senha não confere.'
+    return
+  }
+
+  isUpdating.value = true
+  try {
+    await changePassword(currentPassword.value, newPassword.value)
+    passwordSuccess.value = 'Senha alterada com sucesso.'
+    currentPassword.value = ''
+    newPassword.value = ''
+    confirmPassword.value = ''
+    showChangePassword.value = false
+  } catch (err: any) {
+    passwordError.value = err?.message || 'Erro ao alterar senha.'
+  } finally {
+    isUpdating.value = false
+  }
 }
 </script>
 
@@ -257,7 +309,7 @@ function cancelEdit() {
   width: 100%;
 }
 
-/* Estilos dos botões */
+
 .btn {
   padding: 10px 16px;
   border-radius: 6px;
