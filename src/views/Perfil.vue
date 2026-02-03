@@ -1,12 +1,11 @@
- <template>
+<template>
   <div class="perfil-container">
     <div class="perfil-header">
       <h1>Meu Perfil</h1>
       <p class="subtitle">Gerencie suas informações pessoais</p>
     </div>
-   </Div> 
-</template>
-    <!-- <div class="perfil-content">
+
+    <div class="perfil-content">
       <div class="card perfil-card">
         <div class="card-header">
           <h2>Informações Pessoais</h2>
@@ -58,7 +57,7 @@
           <button class="btn btn-secondary" @click="showChangePassword = !showChangePassword">
             🔒 Alterar Senha
           </button>
-          <button class="btn btn-danger">🚪 Fazer Logout</button>
+            <button class="btn btn-danger" @click="doLogout">🚪 Fazer Logout</button>
         </div>
         <div v-if="showChangePassword" class="password-form">
           <div class="form-group">
@@ -78,10 +77,76 @@
       </div>
     </div>
   </div>
-</template> -->
+</template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUser, logout } from '@/services/authService'
 
+const router = useRouter()
+
+// user global (o mesmo da navbar)
+const user = useUser()
+
+// estados
+const editMode = ref(false)
+const showChangePassword = ref(false)
+
+// formulário de edição
+const editForm = ref({
+  nome: '',
+  email: '',
+  telefone: ''
+})
+
+// quando o user carregar, preencher o formulário
+watch(
+  user,
+  (newUser) => {
+    if (newUser) {
+      editForm.value.nome = newUser.nome || ''
+      editForm.value.email = newUser.email || ''
+      editForm.value.telefone = newUser.telefone || ''
+    }
+  },
+  { immediate: true }
+)
+
+// salvar alterações (front apenas)
+function saveChanges() {
+  if (!user.value) return
+
+  const updatedUser = {
+    ...user.value,
+    ...editForm.value
+  }
+
+  // atualiza estado global
+  user.value = updatedUser
+
+  // atualiza localStorage
+  localStorage.setItem('user', JSON.stringify(updatedUser))
+
+  editMode.value = false
+}
+
+// cancelar edição
+function cancelEdit() {
+  if (!user.value) return
+
+  editForm.value.nome = user.value.nome || ''
+  editForm.value.email = user.value.email || ''
+  editForm.value.telefone = user.value.telefone || ''
+
+  editMode.value = false
+}
+
+// logout
+function doLogout() {
+  logout()
+  router.push('/login')
+}
 
 </script>
 

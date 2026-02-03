@@ -1,39 +1,42 @@
 <template>
   <nav class="navbar">
     <div class="logo">Tech Store</div>
-
+          <router-link to="/perfil">Perfil</router-link>
     <div class="nav-right">
       <router-link to="/">Dashboard</router-link>
-
-      <!-- NÃO LOGADO -->
-      <router-link v-if="!logged" to="/cadastro">Cadastro</router-link>
-      <router-link v-if="!logged" to="/login">Entrar</router-link>
+      <template v-if="!isLogged">
+        <router-link to="/cadastro">Cadastro</router-link>
+        <router-link to="/login">Entrar</router-link>
+      </template>
 
       <!-- LOGADO -->
-      <div v-else class="user-area">
-        <span class="user-name">👋 {{ userName }}</span>
-        <button class="btn-logout" @click="doLogout">Sair</button>
-      </div>
+      <template v-else>
+
+        <div class="user-area">
+          <span class="user-name">👋 {{ userName }}</span>
+          <button class="btn-logout" @click="doLogout">Sair</button>
+        </div>
+      </template>
     </div>
   </nav>
+
 </template>
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUser, isAuthenticated, logout } from '@/services/authService'
+import { useUser, logout } from '@/services/authService'
 
 export default defineComponent({
   setup() {
     const router = useRouter()
-    const user = useUser()
+    const user = useUser() // ref
 
-    const logged = computed(() => isAuthenticated())
+    const isLogged = computed(() => !!user.value)
+
     const userName = computed(() => {
-  if (!user.value) return ''
-  return user.value.nome || user.value.name || user.value.email || ''
-})
-console.log('USER:', user.value)
+      return user.value?.nome || user.value?.email || ''
+    })
 
     function doLogout() {
       logout()
@@ -41,7 +44,7 @@ console.log('USER:', user.value)
     }
 
     return {
-      logged,
+      isLogged,
       userName,
       doLogout
     }

@@ -3,7 +3,7 @@ import Dashboard from '@/views/Dashboard.vue'
 import Login from '@/views/login.vue'
 import Cadastro from '@/views/cadastro.vue'
 import Perfil from '@/views/Perfil.vue'
-import { isAuthenticated } from '@/services/authService'
+import { useUser } from '@/services/authService'
 
 const routes = [
   { path: '/', name: 'Dashboard', component: Dashboard },
@@ -17,14 +17,23 @@ const router = createRouter({
   routes
 })
 
+
 router.beforeEach((to, from, next) => {
-  if ((to.meta as any).requiresAuth && !isAuthenticated()) {
+  const user = useUser()
+
+  // rota protegida e NÃO logado
+  if ((to.meta as any).requiresAuth && !user.value) {
     next({ name: 'login', query: { redirect: to.fullPath } })
-  } else if ((to.name === 'login' || to.name === 'cadastro') && isAuthenticated()) {
-    next({ name: 'Dashboard' })
-  } else {
-    next()
+    return
   }
+
+  // já logado tentando acessar login ou cadastro
+  if ((to.name === 'login' || to.name === 'cadastro') && user.value) {
+    next({ name: 'Dashboard' })
+    return
+  }
+
+  next()
 })
 
 export default router
