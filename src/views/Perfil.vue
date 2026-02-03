@@ -64,15 +64,18 @@
             <label>Senha Atual</label>
             <input type="password" placeholder="Digite sua senha atual" />
           </div>
-          <div class="form-group">
-            <label>Nova Senha</label>
-            <input type="password" placeholder="Digite sua nova senha" />
-          </div>
+         <input
+  type="password"
+  placeholder="Digite sua nova senha"
+  v-model="newPassword"
+/>
           <div class="form-group">
             <label>Confirmar Nova Senha</label>
             <input type="password" placeholder="Confirme sua nova senha" />
           </div>
-          <button class="btn btn-primary">💾 Atualizar Senha</button>
+              <button class="btn btn-primary" @click="changePassword">
+                      💾 Atualizar Senha
+              </button>
         </div>
       </div>
     </div>
@@ -82,8 +85,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUser, logout } from '@/services/authService'
+import { updateUser, useUser, logout } from '@/services/authService'
 
+
+const newPassword = ref('')
 const router = useRouter()
 
 // user global (o mesmo da navbar)
@@ -112,26 +117,40 @@ watch(
   },
   { immediate: true }
 )
-
-// salvar alterações (front apenas)
-function saveChanges() {
-  if (!user.value) return
-
-  const updatedUser = {
-    ...user.value,
-    ...editForm.value
+async function changePassword() {
+  if (!newPassword.value) {
+    alert('Digite a nova senha')
+    return
   }
 
-  // atualiza estado global
-  user.value = updatedUser
+  try {
+    await updateUser({
+      senha: newPassword.value
+    })
 
-  // atualiza localStorage
-  localStorage.setItem('user', JSON.stringify(updatedUser))
-
-  editMode.value = false
+    alert('Senha atualizada com sucesso 🔒')
+    newPassword.value = ''
+    showChangePassword.value = false
+  } catch {
+    alert('Erro ao atualizar senha')
+  }
 }
 
-// cancelar edição
+
+async function saveChanges() {
+  try {
+    await updateUser({
+      nome: editForm.value.nome,
+      email: editForm.value.email,
+      telefone: editForm.value.telefone
+    })
+
+    editMode.value = false
+  } catch {
+    alert('Erro ao atualizar perfil')
+  }
+}
+  
 function cancelEdit() {
   if (!user.value) return
 

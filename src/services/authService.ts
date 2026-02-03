@@ -2,11 +2,6 @@ import { ref, computed } from 'vue'
 import api from './api'
 
 const user = ref<any>(null)
-
-/**
- * 🔒 Carregamento seguro do usuário do localStorage
- * Evita JSON.parse("undefined")
- */
 const storedUser = localStorage.getItem('user')
 
 if (storedUser && storedUser !== 'undefined') {
@@ -72,10 +67,6 @@ export function logout() {
   user.value = null
 }
 
-/**
- * ⚠️ computed NÃO é função
- * usar: isAuthenticated.value
- */
 export const isAuthenticated = computed(() => {
   return !!user.value
 })
@@ -83,3 +74,25 @@ export const isAuthenticated = computed(() => {
 export function useUser() {
   return user
 }
+
+
+export async function updateUser(data: {
+  nome?: string
+  email?: string
+  telefone?: string
+  senha?: string
+}) {
+  if (!user.value?.id) {
+    throw new Error('Usuário não autenticado')
+  }
+
+  const response = await api.put(`/usuarios/${user.value.id}`, data)
+
+  const updatedUser = response.data.usuario || response.data
+
+  user.value = updatedUser
+  localStorage.setItem('user', JSON.stringify(updatedUser))
+
+  return updatedUser
+}
+
