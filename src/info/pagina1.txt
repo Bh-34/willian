@@ -1,0 +1,36 @@
+Informações da Página 1:
+
+Aqui você pode guardar dados, anotações ou qualquer informação relevante para a página 1.
+
+Cursos disponíveis:
+
+- JavaScript para Iniciantes
+- Python do Zero ao Avançado
+- HTML e CSS Essencial
+- Vue.js Completo
+- React na Prática
+- Node.js e Express
+- Banco de Dados MySQL
+- MongoDB para Desenvolvedores
+- TypeScript Moderno
+- Angular do Básico ao Pro
+- Java para Web
+- C# e .NET Core
+- Flutter e Dart
+- Desenvolvimento Android
+- Swift para iOS
+- PHP e Laravel
+- Ruby on Rails
+- Segurança da Informação
+- DevOps e Docker
+- AWS para Iniciantes
+- Machine Learning com Python
+- Data Science do Zero
+- Power BI e Visualização de Dados
+- Excel Avançado
+- Lógica de Programação
+- Design Gráfico com Photoshop
+- UX/UI Design
+- Marketing Digital
+- Gestão de Projetos Ágeis
+- Inglês para TI
