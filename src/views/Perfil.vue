@@ -4,9 +4,8 @@
       <h1>Meu Perfil</h1>
       <p class="subtitle">Gerencie suas informações pessoais</p>
     </div>
-   </Div> 
-</template>
-    <!-- <div class="perfil-content">
+
+    <div class="perfil-content">
       <div class="card perfil-card">
         <div class="card-header">
           <h2>Informações Pessoais</h2>
@@ -78,11 +77,49 @@
       </div>
     </div>
   </div>
-</template> -->
+</template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 
+interface User {
+  nome: string;
+  email: string;
+  telefone: string;
+}
 
+const user = ref<User | null>(null);
+const editMode = ref(false);
+const showChangePassword = ref(false);
+const editForm = ref<Partial<User>>({
+  nome: '',
+  email: '',
+  telefone: ''
+});
+
+onMounted(() => {
+  // Carregar dados do usuário da API ou localStorage
+  const userData = localStorage.getItem('user');
+  if (userData) {
+    user.value = JSON.parse(userData);
+    editForm.value = { ...user.value };
+  }
+});
+
+const saveChanges = () => {
+  if (user.value && editForm.value.nome && editForm.value.email && editForm.value.telefone) {
+    user.value = editForm.value as User;
+    localStorage.setItem('user', JSON.stringify(user.value));
+    editMode.value = false;
+  }
+};
+
+const cancelEdit = () => {
+  if (user.value) {
+    editForm.value = { ...user.value };
+  }
+  editMode.value = false;
+};
 </script>
 
 <style scoped>

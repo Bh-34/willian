@@ -4,6 +4,7 @@
 
     <div class="nav-right">
       <router-link to="/">Dashboard</router-link>
+      <router-link to="/perfil">Perfil</router-link>
 
       <!-- NÃO LOGADO -->
       <router-link v-if="!logged" to="/cadastro">Cadastro</router-link>
@@ -22,6 +23,7 @@
 import { defineComponent, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUser, isAuthenticated, logout } from '@/services/authService'
+import router from '@/router';
 
 export default defineComponent({
   setup() {

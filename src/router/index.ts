@@ -3,13 +3,15 @@ import Dashboard from '@/views/Dashboard.vue'
 import Login from '@/views/login.vue'
 import Cadastro from '@/views/cadastro.vue'
 import Perfil from '@/views/Perfil.vue'
+import Pagando from '@/views/Pagando.vue'
 import { isAuthenticated } from '@/services/authService'
 
 const routes = [
   { path: '/', name: 'Dashboard', component: Dashboard },
   { path: '/login', name: 'Login', component: Login },
   { path: '/cadastro', name: 'Cadastro', component: Cadastro },
-  {path: '/perfil', name: 'Perfil', component: Perfil, meta: { requiresAuth: true } }
+  { path: '/perfil', name: 'Perfil', component: Perfil, meta: { requiresAuth: true } },
+  { path: '/pagando', name: 'Pagando', component: Pagando }
 ]
 
 const router = createRouter({
