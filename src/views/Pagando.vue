@@ -100,7 +100,7 @@
       <div v-else class="sucesso-pagamento">
         <div class="checkmark">✓</div>
         <h1>Pagamento Realizado com Sucesso!</h1>
-        <p>Obrigado por sua compra.</p>
+        <p>Obrigado por sua compra. Você será redirecionado para seu curso em breve...</p>
 
         <div class="dados-confirmacao">
           <h2>Detalhes da Transação</h2>
@@ -126,7 +126,11 @@
           </div>
         </div>
 
-        <router-link to="/" class="btn-voltar">Voltar ao Dashboard</router-link>
+        <div class="countdown">
+          <p>Redirecionando em <span class="contador">{{ contadorRedirecionamento }}</span> segundos...</p>
+        </div>
+
+        <router-link to="/dashboard-assinado" class="btn-voltar">Ir para o Curso Agora</router-link>
       </div>
     </div>
   </div>
@@ -134,6 +138,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
 
 interface Plano {
   nome: string
@@ -155,6 +160,7 @@ interface FormaPagamento {
 export default defineComponent({
   data() {
     return {
+      router: useRouter(),
       plano: null as Plano | null,
       formaPagamento: {
         nome: '',
@@ -168,7 +174,9 @@ export default defineComponent({
       erro: '',
       numeroTransacao: '',
       dataPagamento: '',
-      cartaoMascarado: ''
+      cartaoMascarado: '',
+      contadorRedirecionamento: 3,
+      intervaloContador: null as any
     }
   },
   mounted() {
@@ -276,7 +284,25 @@ export default defineComponent({
 
         this.pagamentoRealizado = true
         this.processando = false
+
+        // Iniciar contador regressivo
+        this.contadorRedirecionamento = 3
+        this.intervaloContador = setInterval(() => {
+          this.contadorRedirecionamento--
+          if (this.contadorRedirecionamento <= 0) {
+            clearInterval(this.intervaloContador)
+            this.intervaloContador = null
+            this.router.push('/dashboard-assinado')
+          }
+        }, 1000)
       }, 2000)
+    }
+  },
+  beforeUnmount() {
+    // Limpar o intervalo quando sair da página
+    if (this.intervaloContador !== null) {
+      clearInterval(this.intervaloContador)
+      this.intervaloContador = null
     }
   }
 })
@@ -534,5 +560,27 @@ export default defineComponent({
 .btn-voltar:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(107, 70, 193, 0.3);
+}
+
+.countdown {
+  margin: 24px 0;
+  font-size: 16px;
+  color: var(--muted);
+  animation: pulse 1s ease infinite;
+}
+
+.countdown .contador {
+  font-weight: bold;
+  color: var(--primary);
+  font-size: 18px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 </style>
