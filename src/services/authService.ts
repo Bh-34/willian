@@ -1,16 +1,28 @@
 import { ref } from 'vue'
 import api from './api'
 
+// Conta de teste padrão
+const contaTeste = {
+  nome: 'Visitante Teste',
+  email: 'teste@techstore.com',
+  cpf: '000.000.000-00',
+  telefone: '(11) 99999-9999'
+}
 
 const user = ref<any>(null)
 
 const storedUser = localStorage.getItem('user')
 
 try {
-  user.value = storedUser ? JSON.parse(storedUser) : null
+  user.value = storedUser ? JSON.parse(storedUser) : contaTeste
 } catch {
   localStorage.removeItem('user')
-  user.value = null
+  user.value = contaTeste
+}
+
+// Se não houver usuário, usar conta de teste
+if (!user.value) {
+  user.value = contaTeste
 }
 
 
@@ -66,11 +78,13 @@ export function logout() {
   localStorage.removeItem('token')
   localStorage.removeItem('user')
   delete api.defaults.headers.common['Authorization']
-  user.value = null
+  // Voltar para conta de teste
+  user.value = contaTeste
 }
 
 export function isAuthenticated() {
-  return !!user.value
+  // Sempre considerado autenticado (com conta de teste ou real)
+  return true
 }
 
 export function useUser() {

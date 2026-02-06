@@ -52,6 +52,24 @@ interface Plano {
   detalhesAdicionais: string[]
 }
 
+// Esqueleto genérico de planos
+const planosData: { [key: string]: Plano } = {
+  basic: {
+    nome: 'Plano Básico',
+    preco: 'R$ 29,90',
+    periodicidade: 'Mensal',
+    features: ['3 aulas por dia', '5 cursos'],
+    detalhesAdicionais: ['Acesso limitado aos cursos selecionados', 'Suporte básico']
+  },
+  premium: {
+    nome: 'Plano Premium',
+    preco: 'R$ 79,90',
+    periodicidade: 'Mensal',
+    features: ['Aulas ilimitadas', 'Cursos ilimitados', 'Acesso a apostilas'],
+    detalhesAdicionais: ['Acesso total a todos os cursos', 'Suporte premium', 'Material exclusivo']
+  }
+}
+
 export default defineComponent({
   setup() {
     const router = useRouter()
@@ -73,9 +91,14 @@ export default defineComponent({
     }
   },
   mounted() {
-    const stored = sessionStorage.getItem('planoSelecionado')
-    if (stored) {
-      this.plano = JSON.parse(stored)
+    const planoSelecionado = localStorage.getItem('planoSelecionado');
+    
+    // Usar esqueleto genérico
+    if (planoSelecionado && planosData[planoSelecionado]) {
+      this.plano = planosData[planoSelecionado];
+      localStorage.setItem('planoVisualizado', JSON.stringify(this.plano));
+    } else {
+      this.plano = null;
     }
   }
 })
@@ -265,7 +288,7 @@ export default defineComponent({
   transition: all 0.2s ease;
 }
 
-.link-voltar:hover {
+.link-vowltar:hover {
   background: var(--primary);
   color: white;
 }

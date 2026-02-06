@@ -31,11 +31,11 @@
           <button class="btn primary" :disabled="loading">
             {{ loading ? 'Carregando...' : 'Entrar' }}
           </button>
-
-          <button type="button" class="btn" @click="fillTest">
-            Usar conta de teste
-          </button>
         </div>
+
+        <button type="button" class="btn secondary" @click="loginDireto" style="width: 100%">
+          Entrar com Conta Teste
+        </button>
       </form>
     </div>
   </div>
@@ -75,13 +75,25 @@ export default defineComponent({
       senha.value = 'senha123'
     }
 
+    function loginDireto() {
+      const contaTeste = {
+        nome: 'Visitante Teste',
+        email: 'teste@techstore.com',
+        cpf: '000.000.000-00',
+        telefone: '(11) 99999-9999'
+      }
+      localStorage.setItem('user', JSON.stringify(contaTeste))
+      router.push('/')
+    }
+
     return {
       email,
       senha,
       loading,
       error,
       submit,
-      fillTest
+      fillTest,
+      loginDireto
     }
   }
 })
@@ -113,5 +125,12 @@ input {
 }
 .error {
   color: #ef4444;
+}
+.btn.secondary {
+  background-color: #6b7280;
+  color: white;
+}
+.btn.secondary:hover {
+  background-color: #4b5563;
 }
 </style>

@@ -32,10 +32,20 @@ export default defineComponent({
 
     const logged = computed(() => isAuthenticated())
     const userName = computed(() => {
-  if (!user.value) return ''
-  return user.value.nome || user.value.name || user.value.email || ''
-})
-console.log('USER:', user.value)
+      // Tentar obter do localStorage primeiro
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          return userData.nome || userData.name || userData.email || '';
+        } catch {
+          return '';
+        }
+      }
+      // Fallback para o user do authService
+      if (!user.value) return '';
+      return user.value.nome || user.value.name || user.value.email || '';
+    })
 
     function doLogout() {
       logout()

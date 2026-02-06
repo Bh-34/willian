@@ -106,9 +106,10 @@ onMounted(() => {
   }
 });
 
-const saveChanges = () => {
+const saveChanges = async () => {
   if (user.value && editForm.value.nome && editForm.value.email && editForm.value.telefone) {
     user.value = editForm.value as User;
+    // Salvar no localStorage
     localStorage.setItem('user', JSON.stringify(user.value));
     editMode.value = false;
   }

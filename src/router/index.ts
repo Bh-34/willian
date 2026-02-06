@@ -6,6 +6,8 @@ import Perfil from '@/views/Perfil.vue'
 import Pagando from '@/views/Pagando.vue'
 import { isAuthenticated } from '@/services/authService'
 import Visualizaçao from '@/views/Visualizaçao.vue'
+import Dashboardassinado from '@/views/Dashboardassinado.vue'
+import Catalogo from '@/views/Catalogo.vue'
 
 const routes = [
   { path: '/', name: 'Dashboard', component: Dashboard },
@@ -13,7 +15,9 @@ const routes = [
   { path: '/cadastro', name: 'Cadastro', component: Cadastro },
   { path: '/perfil', name: 'Perfil', component: Perfil, meta: { requiresAuth: true } },
   { path: '/pagando', name: 'Pagando', component: Pagando },
-  { path: '/visualizaçao', name: 'Visualizaçao', component: Visualizaçao }
+  { path: '/visualizaçao', name: 'Visualizaçao', component: Visualizaçao },
+  { path: '/dashboardassinado', name: 'Dashboardassinado', component: Dashboardassinado },
+  { path: '/catalogo', name: 'Catalogo', component: Catalogo }
 ]
 
 const router = createRouter({

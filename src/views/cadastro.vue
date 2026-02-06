@@ -78,6 +78,7 @@ export default defineComponent({
       loading.value = true
       try {
         await register({ nome: nome.value, email: email.value, cpf: cpf.value, senha: senha.value, telefone: telefone.value })
+
         success.value = 'Conta criada com sucesso! Você já está logado.'
         setTimeout(() => router.push('/'), 900)
       } catch (e: any) {
