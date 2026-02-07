@@ -28,29 +28,25 @@ const router = createRouter({
 
 
 router.beforeEach((to, from, next) => {
-  const user = useUser()
+  const userRef = useUser()
+  const user = userRef.value
 
-  if ((to.meta as any).requiresAuth && !user.value) {
-    next({ name: 'login', query: { redirect: to.fullPath } })
+  if (to.meta.requiresAuth && !user) {
+    next({ name: 'Login', query: { redirect: to.fullPath } })
     return
   }
 
-  if ((to.name === 'login' || to.name === 'cadastro') && user.value) {
+  if ((to.name === 'Login' || to.name === 'Cadastro') && user) {
+    next({ name: 'Dashboard' })
+    return
+  }
+
+  if (to.meta.requiresPlano && !user?.plano_id) {
     next({ name: 'Dashboard' })
     return
   }
 
   next()
-})
-
-router.beforeEach((to, from, next) => {
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
-
-  if (to.meta.requiresPlano && !user?.plano_id) {
-    next('/')
-  } else {
-    next()
-  }
 })
 
 

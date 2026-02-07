@@ -2,18 +2,38 @@ import { ref, computed } from 'vue'
 import api from './api'
 
 const user = ref<any>(null)
-const storedUser = localStorage.getItem('user')
 
-if (storedUser && storedUser !== 'undefined') {
-  try {
+const storedUser = localStorage.getItem('user')
+const token = localStorage.getItem('token')
+
+if (token) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+}
+
+try {
+  if (storedUser && storedUser !== 'undefined') {
     user.value = JSON.parse(storedUser)
-  } catch {
-    localStorage.removeItem('user')
+  } else {
     user.value = null
   }
-} else {
+} catch {
+  localStorage.removeItem('user')
   user.value = null
 }
+
+try {
+  if (storedUser && storedUser !== 'undefined') {
+    user.value = JSON.parse(storedUser)
+  } else {
+    user.value = null
+  }
+} catch (e) {
+  console.warn('Erro ao carregar usuário do localStorage:', e)
+  localStorage.removeItem('user')
+  user.value = null
+}
+
+
 export async function login(email: string, senha: string) {
   const response = await api.post('/login', { email, senha })
 
@@ -45,8 +65,12 @@ export async function register(data: {
       telefone: data.telefone,
       cpf: data.cpf
     })
+const token = response.data.token
+const userData = response.data.usuario || response.data.user
 
-    const { token, user: userData } = response.data
+if (!userData) {
+  throw new Error('Usuário não retornado pelo backend')
+}
 
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(userData))

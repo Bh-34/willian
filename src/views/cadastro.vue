@@ -59,7 +59,6 @@ export default defineComponent({
 
     function validarTelefone(t: string) {
       if (!t) return true
-      // validação simples: contém apenas dígitos, espaços, parênteses ou traço
       return /^[-+() 0-9]+$/.test(t)
     }
 
