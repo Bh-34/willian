@@ -73,14 +73,18 @@ export default defineComponent({
 
     const hasPlano = computed(() => !!user.value?.plano)
 
-    async function carregarDados() {
-  const [resPlanos, resCursos] = await Promise.all([
-    api.get('/planos'),
-    api.get('/cursos')
-  ])
+  async function carregarDados() {
+  try {
+    const [planosRes, cursosRes] = await Promise.all([
+      api.get('/planos'),
+      api.get('/cursos')
+    ])
 
-  planos.value = resPlanos.data
-  cursos.value = resCursos.data
+    planos.value = planosRes.data
+    cursos.value = cursosRes.data
+  } catch (e) {
+    console.warn('Erro ao carregar dados', e)
+  }
 }
 
     function selecionarPlano(plano: any) {
