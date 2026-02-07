@@ -74,11 +74,14 @@ export default defineComponent({
     const hasPlano = computed(() => !!user.value?.plano)
 
     async function carregarDados() {
-      if (!hasPlano.value) {
-        planos.value = (await api.get('/planos')).data
-      }
-      cursos.value = (await api.get('/cursos')).data
-    }
+  const [resPlanos, resCursos] = await Promise.all([
+    api.get('/planos'),
+    api.get('/cursos')
+  ])
+
+  planos.value = resPlanos.data
+  cursos.value = resCursos.data
+}
 
     function selecionarPlano(plano: any) {
       sessionStorage.setItem('planoSelecionado', JSON.stringify(plano))
