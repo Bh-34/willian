@@ -75,12 +75,48 @@
           <button class="btn btn-primary">💾 Atualizar Senha</button>
         </div>
       </div>
+
+      <!-- Card de Planos Comprados no Final -->
+      <div class="card planos-comprados-card planos-card-expanded">
+        <div class="card-header">
+          <h2>Meus Planos 🎯</h2>
+          <span class="planos-total">{{ planosMaisRecentes.length }} plano(s)</span>
+        </div>
+        <div v-if="planosMaisRecentes.length > 0" class="planos-resumo-expanded">
+          <div v-for="(plano, idx) in planosMaisRecentes" :key="idx" class="plano-card-item">
+            <div class="plano-header-expanded">
+              <div class="plano-info">
+                <span class="plano-tipo">{{ plano.plano }}</span>
+                <span class="plano-duracao">{{ plano.tipo }}</span>
+              </div>
+              <div class="plano-valor-grande">{{ plano.valor }}</div>
+            </div>
+            <div class="plano-details">
+              <div class="detail-row">
+                <span class="detail-label">📅 Data de Compra</span>
+                <span class="detail-value">{{ formatData(plano.data) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">⏰ Hora</span>
+                <span class="detail-value">{{ formatHora(plano.data) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">✅ Status</span>
+                <span class="detail-value status-ativo">Ativo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="planos-vazio">
+          <p>Nenhum plano assinado</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 interface User {
   nome: string;
@@ -91,10 +127,15 @@ interface User {
 const user = ref<User | null>(null);
 const editMode = ref(false);
 const showChangePassword = ref(false);
+const minhasCompras = ref<any[]>([]);
 const editForm = ref<Partial<User>>({
   nome: '',
   email: '',
   telefone: ''
+});
+
+const planosMaisRecentes = computed(() => {
+  return minhasCompras.value.slice(0, 3);
 });
 
 onMounted(() => {
@@ -103,6 +144,12 @@ onMounted(() => {
   if (userData) {
     user.value = JSON.parse(userData);
     editForm.value = { ...user.value };
+  }
+
+  // Carregar histórico de compras
+  const compras = localStorage.getItem('minhasCompras');
+  if (compras) {
+    minhasCompras.value = JSON.parse(compras);
   }
 });
 
@@ -120,6 +167,25 @@ const cancelEdit = () => {
     editForm.value = { ...user.value };
   }
   editMode.value = false;
+};
+
+const formatData = (data: any) => {
+  if (!data) return 'Não informada';
+  const date = new Date(data);
+  return date.toLocaleDateString('pt-BR', { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric' 
+  });
+};
+
+const formatHora = (data: any) => {
+  if (!data) return 'Não informada';
+  const date = new Date(data);
+  return date.toLocaleTimeString('pt-BR', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
 };
 </script>
 
@@ -155,6 +221,174 @@ const cancelEdit = () => {
 
 .perfil-card {
   grid-column: 1 / -1;
+}
+
+/* Card de Planos Comprados */
+.planos-comprados-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 100%);
+  border: 2px solid #10b981;
+}
+
+.planos-comprados-card .card-header {
+  border-bottom-color: #10b981;
+}
+
+.planos-resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.plano-badge-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 4px solid #0078d7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.plano-badge-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 120, 215, 0.1);
+}
+
+.plano-badge-content {
+  display: flex;
+  gap: 8px;
+}
+
+.plano-tipo {
+  background: linear-gradient(135deg, #0078d7 0%, #005fa3 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.plano-duracao {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.plano-valor {
+  font-weight: 700;
+  color: #0078d7;
+  font-size: 0.95rem;
+}
+
+.planos-vazio {
+  text-align: center;
+  padding: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Card de Planos Expandido */
+.planos-card-expanded {
+  grid-column: 1 / -1;
+}
+
+.planos-card-expanded .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+}
+
+.planos-total {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.planos-resumo-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.plano-card-item {
+  background: white;
+  border-left: 6px solid #0078d7;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.plano-card-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 120, 215, 0.15);
+}
+
+.plano-header-expanded {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.plano-info {
+  display: flex;
+  gap: 8px;
+}
+
+.plano-valor-grande {
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0078d7 0%, #005fa3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.plano-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  color: #111827;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.status-ativo {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white !important;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
 .card-header {
