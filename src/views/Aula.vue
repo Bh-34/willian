@@ -7,9 +7,6 @@
       ← Voltar para o curso
     </router-link>
 
-    <h1>{{ aula.titulo }}</h1>
-    <p class="muted">{{ aula.descricao }}</p>
-
     <!-- VIDEO -->
     <div class="video-wrapper">
       <video
@@ -36,11 +33,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/api'
+
+
 
 export default defineComponent({
   setup() {
+       const router = useRouter()
     const route = useRoute()
     const aula = ref<any>(null)
 
@@ -49,6 +49,7 @@ export default defineComponent({
       const response = await api.get(`/aulas/${id}`)
       aula.value = response.data
     })
+    
 
     return { aula }
   }

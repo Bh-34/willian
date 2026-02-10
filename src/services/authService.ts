@@ -65,20 +65,6 @@ export async function register(data: {
       telefone: data.telefone,
       cpf: data.cpf
     })
-const token = response.data.token
-const userData = response.data.usuario || response.data.user
-
-if (!userData) {
-  throw new Error('Usuário não retornado pelo backend')
-}
-
-    localStorage.setItem('token', token)
-    localStorage.setItem('user', JSON.stringify(userData))
-
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-
-    user.value = userData
-    return userData
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Erro ao criar conta')
   }

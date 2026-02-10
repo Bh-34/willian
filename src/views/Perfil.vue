@@ -64,15 +64,13 @@
             <label>Senha Atual</label>
             <input type="password" placeholder="Digite sua senha atual" />
           </div>
-         <input
+           <div class="form-group">
+              <input
   type="password"
   placeholder="Digite sua nova senha"
   v-model="newPassword"
 />
-          <div class="form-group">
-            <label>Confirmar Nova Senha</label>
-            <input type="password" placeholder="Confirme sua nova senha" />
-          </div>
+           </div>
               <button class="btn btn-primary" @click="changePassword">
                       💾 Atualizar Senha
               </button>
@@ -91,21 +89,17 @@ import { updateUser, useUser, logout } from '@/services/authService'
 const newPassword = ref('')
 const router = useRouter()
 
-// user global (o mesmo da navbar)
 const user = useUser()
 
-// estados
 const editMode = ref(false)
 const showChangePassword = ref(false)
 
-// formulário de edição
 const editForm = ref({
   nome: '',
   email: '',
   telefone: ''
 })
 
-// quando o user carregar, preencher o formulário
 watch(
   user,
   (newUser) => {
@@ -161,7 +155,6 @@ function cancelEdit() {
   editMode.value = false
 }
 
-// logout
 function doLogout() {
   logout()
   router.push('/login')

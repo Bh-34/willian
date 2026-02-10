@@ -135,6 +135,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import api from "@/services/api";
+import { useUser } from "@/services/authService";
+
+const user = useUser();
+
 
 interface Plano {
   id: number;
@@ -173,138 +177,124 @@ export default defineComponent({
       cartaoMascarado: "",
     };
   },
-
+  
   mounted() {
-    const stored = localStorage.getItem("planoParaPagar");
-    if (stored) {
-      this.plano = JSON.parse(stored);
+      const stored = localStorage.getItem("planoParaPagar");
+      if (stored) {
+          this.plano = JSON.parse(stored);
+        }
+    },
+    
+ methods: {
+  async associarPlanoAoUsuario() {
+    if (!this.plano?.id) {
+      throw new Error("Plano inválido");
+    }
+
+    const response = await api.post("/usuario/plano", {
+      plano_id: this.plano.id,
+    });
+
+    console.log("RESPOSTA BACKEND PLANO:", response.data);
+
+    if (response.data.usuario) {
+      console.log("USUÁRIO ATUALIZADO:", response.data.usuario);
+      user.value = response.data.usuario;
+      localStorage.setItem("user", JSON.stringify(response.data.usuario));
     }
   },
 
-  methods: {
-    async associarPlanoAoUsuario() {
-      if (!this.plano?.id) {
-        throw new Error("Plano inválido");
-      }
-
-      await api.post("/usuario/plano", {
-        plano_id: this.plano.id,
-      });
-    },
-
-    formatarCartao(event: Event) {
-      const input = event.target as HTMLInputElement;
-      let valor = input.value.replace(/\s/g, "");
-      let formatado = "";
-      for (let i = 0; i < valor.length; i++) {
-        if (i > 0 && i % 4 === 0) formatado += " ";
-        formatado += valor[i];
-      }
-      this.formaPagamento.cartao = formatado;
-    },
-
-    formatarValidade(event: Event) {
-      const input = event.target as HTMLInputElement;
-      let valor = input.value.replace(/\D/g, "");
-      if (valor.length >= 2) {
-        valor = valor.slice(0, 2) + "/" + valor.slice(2, 4);
-      }
-      this.formaPagamento.validade = valor;
-    },
-
-    apenasNumeros(event: Event) {
-      const input = event.target as HTMLInputElement;
-      input.value = input.value.replace(/\D/g, "");
-    },
-
-    validarFormulario(): boolean {
-      this.erro = "";
-
-      if (!this.formaPagamento.nome.trim()) {
-        this.erro = "Nome do titular é obrigatório";
-        return false;
-      }
-
-      if (!this.formaPagamento.email.includes("@")) {
-        this.erro = "Email inválido";
-        return false;
-      }
-
-      const cartaoNumeros = this.formaPagamento.cartao.replace(/\s/g, "");
-      if (cartaoNumeros.length !== 16) {
-        this.erro = "Número do cartão deve ter 16 dígitos";
-        return false;
-      }
-
-      if (!this.formaPagamento.validade.match(/^\d{2}\/\d{2}$/)) {
-        this.erro = "Data de validade inválida";
-        return false;
-      }
-
-      if (this.formaPagamento.cvv.length < 3) {
-        this.erro = "CVV inválido";
-        return false;
-      }
-
-      return true;
-    },
-
-    processarPagamento() {
-      if (!this.validarFormulario()) return;
-
-      this.processando = true;
-
-      setTimeout(async () => {
-        try {
-          this.numeroTransacao =
-            "TRX" +
-            Date.now() +
-            Math.random().toString(36).substr(2, 6).toUpperCase();
-
-          const data = new Date();
-          this.dataPagamento =
-            data.toLocaleDateString("pt-BR") +
-            " às " +
-            data.toLocaleTimeString("pt-BR");
-
-          const cartaoNumeros = this.formaPagamento.cartao.replace(/\s/g, "");
-          this.cartaoMascarado = "**** **** **** " + cartaoNumeros.slice(-4);
-
-          // 👉 AQUI ACONTECE A ASSOCIAÇÃO REAL DO PLANO
-          await this.associarPlanoAoUsuario();
-
-          const dadosPagamento = {
-            numeroTransacao: this.numeroTransacao,
-            plano: this.plano,
-            dataPagamento: this.dataPagamento,
-            cartao: this.cartaoMascarado,
-            status: "concluído",
-          };
-
-          localStorage.setItem(
-            "ultimoPagamento",
-            JSON.stringify(dadosPagamento),
-          );
-
-          const historico = JSON.parse(
-            localStorage.getItem("historicoPagamentos") || "[]",
-          );
-          historico.push(dadosPagamento);
-          localStorage.setItem(
-            "historicoPagamentos",
-            JSON.stringify(historico),
-          );
-
-          this.pagamentoRealizado = true;
-        } catch (e) {
-          this.erro = "Erro ao finalizar pagamento ou associar plano";
-        } finally {
-          this.processando = false;
-        }
-      }, 2000);
-    },
+  formatarCartao(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let valor = input.value.replace(/\s/g, "");
+    let formatado = "";
+    for (let i = 0; i < valor.length; i++) {
+      if (i > 0 && i % 4 === 0) formatado += " ";
+      formatado += valor[i];
+    }
+    this.formaPagamento.cartao = formatado;
   },
-});
+
+  formatarValidade(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let valor = input.value.replace(/\D/g, "");
+    if (valor.length >= 2) {
+      valor = valor.slice(0, 2) + "/" + valor.slice(2, 4);
+    }
+    this.formaPagamento.validade = valor;
+  },
+
+  apenasNumeros(event: Event) {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/\D/g, "");
+  },
+
+  validarFormulario(): boolean {
+    this.erro = "";
+
+    if (!this.formaPagamento.nome.trim()) {
+      this.erro = "Nome do titular é obrigatório";
+      return false;
+    }
+
+    if (!this.formaPagamento.email.includes("@")) {
+      this.erro = "Email inválido";
+      return false;
+    }
+
+    const cartaoNumeros = this.formaPagamento.cartao.replace(/\s/g, "");
+    if (cartaoNumeros.length !== 16) {
+      this.erro = "Número do cartão deve ter 16 dígitos";
+      return false;
+    }
+
+    if (!this.formaPagamento.validade.match(/^\d{2}\/\d{2}$/)) {
+      this.erro = "Data de validade inválida";
+      return false;
+    }
+
+    if (this.formaPagamento.cvv.length < 3) {
+      this.erro = "CVV inválido";
+      return false;
+    }
+
+    return true;
+  },
+
+  processarPagamento() {
+    if (!this.validarFormulario()) return;
+
+    this.processando = true;
+
+    setTimeout(async () => {
+      try {
+        this.numeroTransacao =
+          "TRX" +
+          Date.now() +
+          Math.random().toString(36).substr(2, 6).toUpperCase();
+
+        const data = new Date();
+        this.dataPagamento =
+          data.toLocaleDateString("pt-BR") +
+          " às " +
+          data.toLocaleTimeString("pt-BR");
+
+        const cartaoNumeros = this.formaPagamento.cartao.replace(/\s/g, "");
+        this.cartaoMascarado = "**** **** **** " + cartaoNumeros.slice(-4);
+
+        await this.associarPlanoAoUsuario();
+
+        this.pagamentoRealizado = true;
+      } catch (e) {
+        this.erro = "Erro ao finalizar pagamento ou associar plano";
+      } finally {
+        this.processando = false;
+      }
+    }, 2000);
+  },
+},
+
+        });
 </script>
 
 <style scoped>

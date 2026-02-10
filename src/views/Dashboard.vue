@@ -70,8 +70,9 @@ export default defineComponent({
     const planos = ref<any[]>([])
     const cursos = ref<any[]>([])
     const search = ref('')
+    
+const hasPlano = computed(() => !!user.value?.plano_id)
 
-    const hasPlano = computed(() => !!user.value?.plano)
 
   async function carregarDados() {
   try {
