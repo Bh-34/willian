@@ -70,6 +70,13 @@ export async function register(data: {
   }
 }
 
+export async function fetchPerfil() {
+  const response = await api.get('/perfil')
+  user.value = response.data.usuario
+  localStorage.setItem('user', JSON.stringify(response.data.usuario))
+  return response.data.usuario
+}
+
 export function logout() {
   localStorage.removeItem('token')
   localStorage.removeItem('user')
@@ -105,6 +112,7 @@ export async function updateUser(data: {
 
   return updatedUser
 }
+
 
 
 

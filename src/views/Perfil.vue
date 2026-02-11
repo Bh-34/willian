@@ -75,15 +75,68 @@
                       💾 Atualizar Senha
               </button>
         </div>
+        <div class="card planos-comprados-card planos-card-expanded">
+<div class="card-header">
+  <h2>Meus Planos 🎯</h2>
+
+  <button
+    class="btn btn-secondary"
+    @click="mostrarHistoricoPlanos = !mostrarHistoricoPlanos"
+  >
+    {{ mostrarHistoricoPlanos ? '▲ Ocultar' : '▼ Ver histórico' }}
+  </button>
+</div>
+
+<transition name="expand">
+  <div
+    v-if="mostrarHistoricoPlanos"
+    class="planos-resumo-expanded"
+  >
+    <div
+      v-for="h in historicoPlanos"
+      :key="h.id"
+      class="plano-card-item"
+    >
+      <div class="plano-header-expanded">
+        <div class="plano-info">
+          <span class="plano-tipo">{{ h.plano.nome }}</span>
+        </div>
+        <div class="plano-valor-grande">
+          R$ {{ h.plano.preco }}
+        </div>
+      </div>
+
+      <div class="plano-details">
+        <div class="detail-row">
+          <span class="detail-label">📅 Data</span>
+          <span class="detail-value">
+            {{ new Date(h.created_at).toLocaleDateString('pt-BR') }}
+          </span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">⏰ Hora</span>
+          <span class="detail-value">
+            {{ new Date(h.created_at).toLocaleTimeString('pt-BR') }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
+</transition>
+</div>
+</div>
+      </div>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { updateUser, useUser, logout } from '@/services/authService'
+import { fetchPerfil, updateUser, useUser, logout } from '@/services/authService'
+import { onMounted, computed } from 'vue'
+
+const mostrarHistoricoPlanos = ref(false)
 
 
 const newPassword = ref('')
@@ -129,6 +182,18 @@ async function changePassword() {
     alert('Erro ao atualizar senha')
   }
 }
+
+onMounted(async () => {
+  try {
+    await fetchPerfil()
+  } catch (e) {
+    console.error('Erro ao carregar perfil', e)
+  }
+})
+
+const historicoPlanos = computed(() => {
+  return user.value?.historico_planos || []
+})
 
 
 async function saveChanges() {
@@ -203,6 +268,156 @@ function doLogout() {
   margin-bottom: 20px;
   padding-bottom: 16px;
   border-bottom: 2px solid #e5e7eb;
+}
+
+/* Card de Planos Comprados */
+.planos-comprados-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 100%);
+  border: 2px solid #10b981;
+}
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.planos-comprados-card .card-header {
+  border-bottom-color: #10b981;
+}
+
+.planos-resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.plano-badge-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 4px solid #0078d7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.plano-badge-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 120, 215, 0.1);
+}
+
+.plano-badge-content {
+  display: flex;
+  gap: 8px;
+}
+
+.plano-tipo {
+  background: linear-gradient(135deg, #0078d7 0%, #005fa3 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.plano-duracao {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.plano-valor {
+  font-weight: 700;
+  color: #0078d7;
+  font-size: 0.95rem;
+}
+
+.planos-vazio {
+  text-align: center;
+  padding: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Card de Planos Expandido */
+.planos-card-expanded {
+  grid-column: 1 / -1;
+}
+
+.planos-card-expanded .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+}
+
+.planos-total {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.planos-resumo-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.plano-card-item {
+  background: white;
+  border-left: 6px solid #0078d7;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.plano-card-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 120, 215, 0.15);
+}
+
+.plano-header-expanded {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.plano-info {
+  display: flex;
+  gap: 8px;
+}
+
+.plano-valor-grande {
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0078d7 0%, #005fa3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.plano-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .card-header h2 {

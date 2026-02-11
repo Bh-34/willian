@@ -8,16 +8,14 @@
     </router-link>
 
     <!-- VIDEO -->
-    <div class="video-wrapper">
-      <video
-        v-if="aula.video_url"
-        controls
-        controlsList="nodownload"
-      >
-        <source :src="aula.video_url" type="video/mp4" />
-        Seu navegador não suporta vídeo.
-      </video>
-    </div>
+   <div class="video-wrapper" v-if="aula.video_url">
+  <iframe
+    :src="videoEmbedUrl"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+  ></iframe>
+</div>
 
     <!-- PDF -->
     <a
@@ -32,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/api'
 
@@ -49,9 +47,26 @@ export default defineComponent({
       const response = await api.get(`/aulas/${id}`)
       aula.value = response.data
     })
+
+const videoEmbedUrl = computed(() => {
+  if (!aula.value?.video_url) return ''
+
+  // youtube padrão
+  if (aula.value.video_url.includes('watch?v=')) {
+    return aula.value.video_url.replace('watch?v=', 'embed/')
+  }
+
+  // youtu.be
+  if (aula.value.video_url.includes('youtu.be')) {
+    const id = aula.value.video_url.split('/').pop()
+    return `https://www.youtube.com/embed/${id}`
+  }
+
+  return aula.value.video_url
+})
     
 
-    return { aula }
+    return { aula, videoEmbedUrl  }
   }
 })
 </script>
@@ -73,6 +88,21 @@ export default defineComponent({
 
 h1 {
   margin-bottom: 8px;
+}
+.video-wrapper {
+  position: relative;
+  padding-top: 56.25%; /* 16:9 */
+  border-radius: 12px;
+  overflow: hidden;
+  background: black;
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .video-wrapper {
