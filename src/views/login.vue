@@ -1,42 +1,54 @@
 <template>
-  <div class="login-page">
-    <div class="card login-card">
-      <h2>Entrar</h2>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="card-header">
+        <h1>Bem-vindo!</h1>
+        <p class="muted">Acesse sua conta para continuar</p>
+      </div>
 
       <form @submit.prevent="submit">
-        <label>
-          Email
+        <div class="form-group">
+          <label for="email">Email</label>
           <input
+            id="email"
             v-model="email"
             type="email"
             placeholder="seu@exemplo.com"
             required
           />
-        </label>
+        </div>
 
-        <label>
-          Senha
+        <div class="form-group">
+          <label for="password">Senha</label>
           <input
+            id="password"
             v-model="senha"
             type="password"
-            placeholder="Senha"
+            placeholder="Sua senha"
             required
             minlength="6"
           />
-        </label>
+        </div>
 
-        <div v-if="error" class="error">{{ error }}</div>
+        <div v-if="error" class="alert alert-error">
+          {{ error }}
+        </div>
 
-        <div style="display:flex; gap:8px; margin-top:8px">
+        <div class="form-actions">
           <button class="btn primary" :disabled="loading">
             {{ loading ? 'Carregando...' : 'Entrar' }}
           </button>
-
-          <button type="button" class="btn" @click="fillTest">
-            Usar conta de teste
+          <button type="button" class="btn secondary" @click="fillTest">
+            Conta de teste
           </button>
         </div>
       </form>
+
+      <div class="divider">OU</div>
+
+      <router-link to="/cadastro" class="btn btn-block">
+        Criar nova conta
+      </router-link>
     </div>
   </div>
 </template>
@@ -88,30 +100,157 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.login-page {
+.login-container {
   display: flex;
   justify-content: center;
-  padding: 28px;
+  align-items: center;
+  min-height: calc(100vh - 60px);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, #ECF8D4 0%, #F5F1EB 100%);
 }
+
 .login-card {
-  width: 360px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: var(--spacing-3xl);
+  border: 1px solid var(--border);
 }
-form label {
+
+.card-header {
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.card-header h1 {
+  font-size: 1.85rem;
+  margin-bottom: var(--spacing-sm);
+  color: #3D3D3D;
+  font-weight: 800;
+}
+
+.card-header .muted {
+  font-size: 1rem;
+  color: #6B6B6B;
+}
+
+.form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+label {
   font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
 }
+
 input {
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: var(--transition);
+  background: #F5F1EB;
+  color: var(--text-primary);
 }
-.error {
-  color: #ef4444;
+
+input::placeholder {
+  color: #8B8B8B;
+}
+
+input:focus {
+  border-color: #85685A;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(133, 104, 90, 0.1);
+  outline: none;
+}
+
+.alert {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.alert-error {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-actions .btn {
+  flex: 1;
+}
+
+.divider {
+  text-align: center;
+  color: #8B8B8B;
+  margin: var(--spacing-xl) 0;
+  position: relative;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.divider {
+  background: var(--card);
+  position: relative;
+  z-index: 1;
+  padding: 0 var(--spacing-md);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn-block {
+  width: 100%;
+  justify-content: center;
+  background: white;
+  color: #85685A;
+  border: 2px solid var(--border);
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-block:hover {
+  background: #F5F1EB;
+  border-color: #85685A;
+  color: #5A4436;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: var(--spacing-lg);
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
 }
 </style>

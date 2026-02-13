@@ -24,7 +24,7 @@
       target="_blank"
       class="btn pdf"
     >
-      📄 Baixar material em PDF
+      Baixar material em PDF
     </a>
   </div>
 </template>

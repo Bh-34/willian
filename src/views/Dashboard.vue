@@ -1,56 +1,88 @@
 <template>
-  <div>
-    <div class="card">
-      <h1>Dashboard</h1>
-      <p class="muted">
-        {{ hasPlano ? 'Seus cursos disponíveis' : 'Escolha um plano para acessar os cursos' }}
-      </p>
-    </div>
-
-    <!-- PLANOS (SÓ SE NÃO TIVER PLANO) -->
-    <section v-if="!hasPlano" class="plans-grid">
-      <div
-        v-for="plano in planos"
-        :key="plano.id"
-        class="plan card"
-      >
-        <h2>{{ plano.nome }}</h2>
-        <p class="price">R$ {{ plano.preco }}</p>
-
-        <ul>
-          <li v-for="b in plano.beneficios" :key="b.chave">
-            {{ b.texto }}
-          </li>
-        </ul>
-
-        <button class="btn primary" @click="selecionarPlano(plano)">
-          Assinar
-        </button>
+  <div class="dashboard">
+    <!-- HEADER -->
+    <section class="header-section">
+      <div class="header-content">
+        <div>
+          <h1>Bem-vindo ao Dashboard!</h1>
+          <p class="muted">{{ hasPlano ? 'Seus cursos disponíveis' : 'Escolha um plano para acessar os cursos' }}</p>
+        </div>
       </div>
     </section>
 
-    <!-- PESQUISA -->
-    <div class="search-box">
-      <input
-        v-model="search"
-        placeholder="Pesquisar cursos..."
-      />
-    </div>
+    <!-- PLANOS -->
+    <section v-if="!hasPlano" class="section">
+      <div class="section-header">
+        <h2>Nossos Planos</h2>
+        <p class="muted">Escolha o melhor para você</p>
+      </div>
+      <div class="plans-grid">
+        <div
+          v-for="plano in planos"
+          :key="plano.id"
+          class="plan-card"
+          :class="{ featured: plano.id === 2 }"
+        >
+          <div class="plan-badge" v-if="plano.id === 2">Mais Popular</div>
+          <h3>{{ plano.nome }}</h3>
+          <div class="price">R$ {{ plano.preco?.toLocaleString('pt-BR') }}</div>
+
+          <ul class="benefits">
+            <li v-for="b in plano.beneficios" :key="b.chave" class="benefit-item">
+              <span class="check">✓</span>
+              {{ b.texto }}
+            </li>
+          </ul>
+
+          <button class="btn primary btn-full" @click="selecionarPlano(plano)">
+            Assinar Plano
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- BUSCA -->
+    <section class="section">
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Buscar cursos..."
+          class="search-input"
+        />
+        <span v-if="search" class="search-clear" @click="search = ''">✕</span>
+      </div>
+    </section>
 
     <!-- CURSOS -->
-    <section class="courses-grid">
-      <div
-        v-for="curso in cursosFiltrados"
-        :key="curso.id"
-        class="course card"
-        @click="abrirCurso(curso)"
-      >
-        <h3>{{ curso.titulo }}</h3>
-        <p class="muted">{{ curso.descricao }}</p>
+    <section class="section">
+      <div class="section-header">
+        <h2>Cursos Disponíveis</h2>
+        <p class="muted">{{ cursosFiltrados.length }} curso{{ cursosFiltrados.length !== 1 ? 's' : '' }} encontrado{{ cursosFiltrados.length !== 1 ? 's' : '' }}</p>
+      </div>
 
-        <span v-if="!hasPlano" class="lock">
-          🔒 Assine para acessar
-        </span>
+      <div v-if="cursosFiltrados.length > 0" class="courses-grid">
+        <div
+          v-for="curso in cursosFiltrados"
+          :key="curso.id"
+          class="course-card"
+          @click="abrirCurso(curso)"
+        >
+          <div class="course-header">
+            <span class="course-icon">📖</span>
+            <span v-if="!hasPlano" class="lock-badge">🔒</span>
+          </div>
+          <h3>{{ curso.titulo }}</h3>
+          <p class="course-desc">{{ curso.descricao }}</p>
+          <div v-if="!hasPlano" class="course-footer">
+            <span class="lock-text">Assine para acessar</span>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="empty-state">
+        <p>Nenhum curso encontrado com "<strong>{{ search }}</strong>"</p>
       </div>
     </section>
   </div>
@@ -70,23 +102,28 @@ export default defineComponent({
     const planos = ref<any[]>([])
     const cursos = ref<any[]>([])
     const search = ref('')
-    
-const hasPlano = computed(() => !!user.value?.plano_id)
 
+    const hasPlano = computed(() => !!user.value?.plano_id)
 
-  async function carregarDados() {
-  try {
-    const [planosRes, cursosRes] = await Promise.all([
-      api.get('/planos'),
-      api.get('/cursos')
-    ])
+    const cursosFiltrados = computed(() =>
+      cursos.value.filter(c =>
+        c.titulo.toLowerCase().includes(search.value.toLowerCase())
+      )
+    )
 
-    planos.value = planosRes.data
-    cursos.value = cursosRes.data
-  } catch (e) {
-    console.warn('Erro ao carregar dados', e)
-  }
-}
+    async function carregarDados() {
+      try {
+        const [planosRes, cursosRes] = await Promise.all([
+          api.get('/planos'),
+          api.get('/cursos')
+        ])
+
+        planos.value = planosRes.data
+        cursos.value = cursosRes.data
+      } catch (e) {
+        console.warn('Erro ao carregar dados', e)
+      }
+    }
 
     function selecionarPlano(plano: any) {
       sessionStorage.setItem('planoSelecionado', JSON.stringify(plano))
@@ -97,12 +134,6 @@ const hasPlano = computed(() => !!user.value?.plano_id)
       if (!hasPlano.value) return
       router.push(`/cursos/${curso.id}`)
     }
-
-    const cursosFiltrados = computed(() =>
-      cursos.value.filter(c =>
-        c.titulo.toLowerCase().includes(search.value.toLowerCase())
-      )
-    )
 
     onMounted(carregarDados)
 
@@ -118,132 +149,308 @@ const hasPlano = computed(() => !!user.value?.plano_id)
 })
 </script>
 
-
-<style scoped>/* ===== LAYOUT GERAL ===== */
-.card {
-  background: white;
-  border-radius: 14px;
-  padding: 20px;
-  border: 1px solid rgba(0,0,0,0.06);
-  margin-bottom: 20px;
-}
-
-h1 {
-  margin: 0 0 6px 0;
-}
-
-.muted {
-  color: var(--muted);
-  font-size: 14px;
-}
-
-/* ===== PLANOS ===== */
-.plans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.plan {
+<style scoped>
+.dashboard {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  transition: transform .2s ease, box-shadow .2s ease;
+  gap: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
 }
 
-.plan:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-}
-
-.plan h2 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.plan .price {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.plan ul {
-  padding-left: 18px;
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-/* ===== BOTÃO ===== */
-.btn {
-  border: none;
-  border-radius: 10px;
-  padding: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn.primary {
-  background: linear-gradient(90deg, var(--primary), #6b46c1);
+/* Header */
+.header-section {
+  background: linear-gradient(135deg, #5A4436 0%, #85685A 100%);
   color: white;
+  padding: var(--spacing-3xl) var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  border-left: none;
 }
 
-.plan .btn {
-  margin-top: auto;
+.header-content h1 {
+  color: white;
+  margin-bottom: var(--spacing-sm);
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
-/* ===== PESQUISA ===== */
-.search-box {
-  margin: 20px 0;
+.header-section .muted {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.05rem;
 }
 
-.search-box input {
+/* Section */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+/* Plans Grid */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.plan-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  transition: var(--transition);
+  position: relative;
+  box-shadow: var(--shadow-md);
+}
+
+.plan-card:hover {
+  border-color: #85685A;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-6px);
+  background: #F5F1EB;
+}
+
+.plan-card.featured {
+  border: 2px solid #85685A;
+  box-shadow: 0 0 0 1px #CB8E5F, var(--shadow-xl);
+  transform: scale(1.03);
+  background: linear-gradient(135deg, #FBF8F0 0%, #FFFFFF 100%);
+}
+
+.plan-card.featured:hover {
+  transform: scale(1.03) translateY(-6px);
+}
+
+.plan-badge {
+  position: absolute;
+  top: -12px;
+  left: var(--spacing-lg);
+  background: linear-gradient(135deg, #85685A, #CB8E5F);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+}
+
+.plan-card h3 {
+  font-size: 1.4rem;
+  margin: 0;
+  color: #3D3D3D;
+  font-weight: 800;
+}
+
+.price {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #85685A;
+  margin: var(--spacing-md) 0 0 0;
+  letter-spacing: -1px;
+}
+
+.benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  flex: 1;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.check {
+  color: #85685A;
+  font-weight: 800;
+  min-width: 20px;
+}
+
+.btn-full {
   width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.1);
-  font-size: 15px;
+  margin-top: var(--spacing-lg);
+  padding: 14px 24px;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
-.search-box input:focus {
+/* Search */
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  max-width: 600px;
+}
+
+.search-icon {
+  position: absolute;
+  left: var(--spacing-lg);
+  font-size: 1.3rem;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 14px 16px 14px calc(var(--spacing-lg) + 32px);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  transition: var(--transition);
+  background: white;
+  color: var(--text-primary);
+}
+
+.search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.search-input:focus {
+  border-color: #2E5C8A;
+  box-shadow: 0 0 0 3px rgba(46, 92, 138, 0.1);
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(30,136,229,0.15);
 }
 
-/* ===== CURSOS ===== */
+.search-clear {
+  position: absolute;
+  right: var(--spacing-lg);
+  cursor: pointer;
+  color: #9CA3AF;
+  font-weight: 700;
+  transition: var(--transition);
+  font-size: 1.1rem;
+}
+
+.search-clear:hover {
+  color: #2E5C8A;
+}
+
+/* Courses Grid */
 .courses-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
 }
 
-.course {
+.course-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  transition: var(--transition);
   cursor: pointer;
-  transition: transform .2s ease, box-shadow .2s ease;
   position: relative;
+  box-shadow: var(--shadow-md);
 }
 
-.course:hover {
+.course-card:hover {
+  border-color: #85685A;
+  box-shadow: var(--shadow-lg);
   transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  background: #F5F1EB;
 }
 
-.course h3 {
-  margin: 0 0 6px 0;
-  font-size: 17px;
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-.course .lock {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(0,0,0,0.75);
-  color: white;
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 999px;
+.course-icon {
+  font-size: 2.2rem;
 }
 
+.lock-badge {
+  font-size: 1.3rem;
+}
+
+.course-card h3 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: #3D3D3D;
+  font-weight: 800;
+}
+
+.course-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin: 0;
+  flex: 1;
+  line-height: 1.5;
+}
+
+.course-footer {
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border);
+}
+
+.lock-text {
+  font-size: 0.85rem;
+  color: #9CA3AF;
+  display: inline-block;
+  font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-3xl);
+  background: var(--neutral-50);
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--border);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard {
+    gap: var(--spacing-xl);
+  }
+
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-card.featured {
+    transform: scale(1);
+  }
+
+  .courses-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
 </style>
