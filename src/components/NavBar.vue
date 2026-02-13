@@ -83,6 +83,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-width: 180vh; 
 }
 
 .logo {

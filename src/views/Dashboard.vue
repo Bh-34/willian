@@ -149,308 +149,137 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-.dashboard {
+<style scoped>.dashboard {
   display: flex;
+  min-width: 180vh;
   flex-direction: column;
   gap: var(--spacing-2xl);
-  margin-bottom: var(--spacing-2xl);
 }
 
-/* Header */
+/* HEADER — MESMO PADRÃO DO LOGIN */
 .header-section {
-  background: linear-gradient(135deg, #5A4436 0%, #85685A 100%);
+  background: var(--primary);
   color: white;
   padding: var(--spacing-3xl) var(--spacing-xl);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
-  border-left: none;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
 }
 
 .header-content h1 {
   color: white;
-  margin-bottom: var(--spacing-sm);
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  margin-bottom: var(--spacing-sm);
 }
 
 .header-section .muted {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 1.05rem;
+  color: rgba(255,255,255,0.85);
 }
 
-/* Section */
+/* SECTION */
 .section {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
 }
 
-.section-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.section-header h2 {
-  font-size: 1.5rem;
-  margin: 0;
-}
-
-/* Plans Grid */
-.plans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
-}
-
+/* PLANOS */
 .plan-card {
   background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   transition: var(--transition);
+  box-shadow: var(--shadow-sm);
   position: relative;
-  box-shadow: var(--shadow-md);
 }
 
 .plan-card:hover {
-  border-color: #85685A;
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-6px);
-  background: #F5F1EB;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
 }
 
 .plan-card.featured {
-  border: 2px solid #85685A;
-  box-shadow: 0 0 0 1px #CB8E5F, var(--shadow-xl);
-  transform: scale(1.03);
-  background: linear-gradient(135deg, #FBF8F0 0%, #FFFFFF 100%);
-}
-
-.plan-card.featured:hover {
-  transform: scale(1.03) translateY(-6px);
+  border: 2px solid var(--primary);
 }
 
 .plan-badge {
   position: absolute;
-  top: -12px;
+  top: -10px;
   left: var(--spacing-lg);
-  background: linear-gradient(135deg, #85685A, #CB8E5F);
+  background: var(--primary);
   color: white;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: 6px 12px;
   border-radius: var(--radius-md);
   font-size: 0.8rem;
-  font-weight: 700;
-  box-shadow: var(--shadow-md);
-}
-
-.plan-card h3 {
-  font-size: 1.4rem;
-  margin: 0;
-  color: #3D3D3D;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .price {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   font-weight: 800;
-  color: #85685A;
-  margin: var(--spacing-md) 0 0 0;
-  letter-spacing: -1px;
-}
-
-.benefits {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  flex: 1;
-}
-
-.benefit-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  color: var(--text-secondary);
-  font-size: 0.95rem;
+  color: var(--primary);
 }
 
 .check {
-  color: #85685A;
-  font-weight: 800;
-  min-width: 20px;
+  color: var(--primary);
+  font-weight: 700;
 }
 
-.btn-full {
-  width: 100%;
-  margin-top: var(--spacing-lg);
-  padding: 14px 24px;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-/* Search */
-.search-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  max-width: 600px;
-}
-
-.search-icon {
-  position: absolute;
-  left: var(--spacing-lg);
-  font-size: 1.3rem;
-  pointer-events: none;
-}
-
+/* SEARCH */
 .search-input {
-  width: 100%;
-  padding: 14px 16px 14px calc(var(--spacing-lg) + 32px);
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  font-size: 1rem;
+  padding: 14px 16px 14px 45px;
   transition: var(--transition);
-  background: white;
-  color: var(--text-primary);
-}
-
-.search-input::placeholder {
-  color: var(--text-tertiary);
 }
 
 .search-input:focus {
-  border-color: #2E5C8A;
-  box-shadow: 0 0 0 3px rgba(46, 92, 138, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
   outline: none;
 }
 
-.search-clear {
-  position: absolute;
-  right: var(--spacing-lg);
-  cursor: pointer;
-  color: #9CA3AF;
-  font-weight: 700;
-  transition: var(--transition);
-  font-size: 1.1rem;
-}
-
-.search-clear:hover {
-  color: #2E5C8A;
-}
-
-/* Courses Grid */
-.courses-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
-}
-
+/* CURSOS */
 .course-card {
   background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   transition: var(--transition);
   cursor: pointer;
-  position: relative;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .course-card:hover {
-  border-color: #85685A;
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-6px);
-  background: #F5F1EB;
-}
-
-.course-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.course-icon {
-  font-size: 2.2rem;
-}
-
-.lock-badge {
-  font-size: 1.3rem;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
 }
 
 .course-card h3 {
-  font-size: 1.25rem;
-  margin: 0;
-  color: #3D3D3D;
   font-weight: 800;
-}
-
-.course-desc {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  margin: 0;
-  flex: 1;
-  line-height: 1.5;
-}
-
-.course-footer {
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--border);
+  color: var(--text-primary);
 }
 
 .lock-text {
-  font-size: 0.85rem;
-  color: #9CA3AF;
-  display: inline-block;
-  font-weight: 500;
+  color: var(--text-tertiary);
 }
 
-/* Empty State */
+/* EMPTY STATE */
 .empty-state {
   text-align: center;
   padding: var(--spacing-3xl);
   background: var(--neutral-50);
   border-radius: var(--radius-xl);
-  border: 2px dashed var(--border);
+  border: 1px solid var(--border);
 }
 
-.empty-state p {
-  margin: 0;
-  font-size: 1.05rem;
-  color: var(--text-secondary);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .dashboard {
-    gap: var(--spacing-xl);
-  }
-
-  .header-content h1 {
-    font-size: 1.5rem;
-  }
-
-  .plans-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .plan-card.featured {
-    transform: scale(1);
-  }
-
-  .courses-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
-}
 </style>

@@ -1,31 +1,28 @@
 <template>
-  <div class="app-wrapper">
+ 
     <NavBar />
     <main class="container">
       <router-view />
     </main>
-    <Footer />
-  </div>
+  
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import NavBar from '@/components/NavBar.vue'
-import Footer from '@/components/Footer.vue'
+
 
 export default defineComponent({
-  components: { NavBar, Footer },
+  components: { NavBar },
 })
 </script>
 
 <style scoped>
-.app-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
+
 
 .container {
+  display: flex;
+  justify-content: center;
   padding: var(--spacing-lg);
   max-width: 1200px;
   margin: 0 auto;
