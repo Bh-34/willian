@@ -1,7 +1,8 @@
 <template>
  
     <NavBar />
-    <main class="container">
+<main :class="$route.path.includes('dashboard') ? 'container-fluid' : 'container'">
+
       <router-view />
     </main>
   
@@ -19,16 +20,18 @@ export default defineComponent({
 
 <style scoped>
 
-
 .container {
-  display: flex;
-  justify-content: center;
-  padding: var(--spacing-lg);
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
-  flex: 1;
+  padding: var(--spacing-lg);
 }
+
+.container-fluid {
+  width: 100%;
+  padding: var(--spacing-lg);
+}
+
 
 @media (max-width: 768px) {
   .container {

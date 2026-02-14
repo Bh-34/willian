@@ -107,41 +107,41 @@ export default defineComponent({
 
 <style scoped>
 .curso-container {
+  background: #eef2f7;
+  min-height: 100vh;
+  padding: 0 2rem 3rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xl);
-  margin-bottom: var(--spacing-2xl);
+  gap: 2rem;
 }
-
 .curso-header {
-  background: linear-gradient(135deg, #5A4436 0%, #85685A 100%);
+  background: var(--primary);
   color: white;
-  padding: var(--spacing-3xl) var(--spacing-xl);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
+  padding: 4rem 0;
+  border-radius: 6px;
 }
 
 .header-content {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .btn-back {
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
   color: white;
-  padding: 10px 16px;
-  border-radius: var(--radius-lg);
+  padding: 10px 18px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  margin-bottom: var(--spacing-lg);
-  transition: var(--transition);
-  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
 }
 
 .btn-back:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
 }
 
 .curso-header h1 {
@@ -163,9 +163,12 @@ export default defineComponent({
 }
 
 .modulos-section {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: 2rem;
 }
 
 .section-intro {
@@ -188,31 +191,31 @@ export default defineComponent({
 }
 
 .modulo-card {
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-xl);
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
-  transition: var(--transition);
-  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
 }
 
 .modulo-card:hover {
-  border-color: #85685A;
-  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
 }
 
 .modulo-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-xl);
+  padding: 1.8rem 2rem;
   cursor: pointer;
-  transition: var(--transition);
-  background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+  background: #f8fafc;
+  transition: all 0.3s ease;
 }
 
 .modulo-header:hover {
-  background: linear-gradient(135deg, #F0F7FF 0%, #E0F2FE 100%);
+  background: #eef2ff;
 }
 
 .modulo-info {
@@ -261,20 +264,20 @@ export default defineComponent({
 .aula-item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-  background: var(--card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
 }
 
 .aula-item:hover {
-  border-color: #2E5C8A;
-  box-shadow: var(--shadow-md);
-  transform: translateX(4px);
-  background: #F0F7FF;
+  border-color: var(--primary);
+  background: #f8fbff;
+  transform: translateX(6px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 }
 
 .aula-icon {
@@ -296,13 +299,12 @@ export default defineComponent({
 }
 
 .aula-badge {
-  background: linear-gradient(135deg, #2E5C8A, #4A90E2);
-  color: white;
-  padding: 4px 12px;
-  border-radius: var(--radius-md);
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
-  flex-shrink: 0;
 }
 
 /* Transições */

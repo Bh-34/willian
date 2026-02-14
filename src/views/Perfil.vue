@@ -11,6 +11,8 @@
       </div>
     </div>
 
+    <div class="branco">
+
     <div class="perfil-content">
       <!-- Seção Esquerda: Informações -->
       <aside class="perfil-sidebar">
@@ -79,7 +81,7 @@
         <!-- Card Segurança -->
         <section class="perfil-section">
           <div class="section-header">
-            <h2>🔒 Segurança</h2>
+            <h2>Segurança</h2>
           </div>
 
           <div class="security-grid">
@@ -87,7 +89,6 @@
               class="security-btn"
               @click="showChangePassword = !showChangePassword"
             >
-              <span class="icon">🔑</span>
               <div class="btn-content">
                 <span class="btn-title">Alterar Senha</span>
                 <span class="btn-desc">Atualize sua senha</span>
@@ -149,10 +150,11 @@
         <!-- Card Sair -->
         <section class="perfil-section logout-section">
           <button class="btn danger btn-full" @click="doLogout">
-            🚪 Sair da Conta
+            Sair da Conta
           </button>
         </section>
       </main>
+    </div>
     </div>
   </div>
 </template>
@@ -213,7 +215,7 @@ async function changePassword() {
       senha: newPassword.value
     })
 
-    alert('Senha atualizada com sucesso 🔒')
+    alert('Senha atualizada com sucesso')
     newPassword.value = ''
     showChangePassword.value = false
   } catch {
@@ -270,7 +272,8 @@ function doLogout() {
   flex-direction: column;
   gap: var(--spacing-xl);
   min-height: calc(100vh - 60px);
-  background: var(--bg);
+   background: #eef2f7;
+     padding-bottom: 3rem;
 }
 
 /* Header */
@@ -279,6 +282,7 @@ function doLogout() {
   overflow: hidden;
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: var(--shadow-lg);
+   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
 .header-background {
@@ -287,7 +291,7 @@ function doLogout() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #5A4436 0%, #85685A 50%, #CB8E5F 100%);
+ background: var(--primary);
   z-index: 0;
 }
 
@@ -296,8 +300,15 @@ function doLogout() {
   z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-3xl) var(--spacing-xl);
+  padding: 4rem 2rem;
   width: 100%;
+}
+
+.branco {
+  background: #f8fafc; 
+  padding: 3rem 2rem;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  margin-top: -20px; 
 }
 
 .header-title h1 {
@@ -321,8 +332,8 @@ function doLogout() {
   padding: 0 var(--spacing-lg);
   width: 100%;
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: var(--spacing-xl);
+ grid-template-columns: 1fr 1fr;
+  gap: 2rem;
   margin-bottom: var(--spacing-2xl);
 }
 
@@ -330,6 +341,7 @@ function doLogout() {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+  
 }
 
 .perfil-main {
@@ -338,20 +350,19 @@ function doLogout() {
   gap: var(--spacing-lg);
 }
 
-/* Seções */
 .perfil-section {
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
-  transition: var(--transition);
+  background: white;
+  border-radius: 6px;
+  padding: 2rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
 }
 
 .perfil-section:hover {
-  box-shadow: var(--shadow-lg);
-  border-color: #85685A;
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  border-color: var(--primary);
 }
 
 .section-header {
@@ -391,7 +402,7 @@ function doLogout() {
   border: none;
   cursor: pointer;
   font-size: 1.3rem;
-  color: #85685A;
+  color: #bcbcbc;
   transition: var(--transition);
   padding: 0;
 }
@@ -412,7 +423,7 @@ function doLogout() {
   flex-direction: column;
   gap: var(--spacing-xs);
   padding: var(--spacing-md);
-  background: var(--bg);
+  background: #f8fafc;
   border-radius: var(--radius-md);
   border-left: 3px solid var(--primary);
 }
@@ -422,13 +433,13 @@ function doLogout() {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--muted);
+  color: #0F172A;
 }
 
 .info-value {
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--secondary);
+  color: #828282;
 }
 
 .info-email {
@@ -480,26 +491,23 @@ function doLogout() {
 
 .form-group label {
   font-weight: 600;
-  color: #85685A;
+  color: #0F172A;
   font-size: 0.95rem;
 }
 
 .form-group input {
-  padding: 12px 16px;
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  font-size: 1rem;
-  font-family: inherit;
-  transition: var(--transition);
-  background: #F5F1EB;
-  color: var(--text-primary);
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  transition: all 0.3s ease;
 }
 
+
 .form-group input:focus {
-  border-color: #85685A;
+  border-color: var(--primary);
   background: white;
-  box-shadow: 0 0 0 3px rgba(133, 104, 90, 0.1);
-  outline: none;
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
 }
 
 .edit-actions {
@@ -521,24 +529,18 @@ function doLogout() {
 }
 
 .security-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-  background: linear-gradient(135deg, #F9F5F0 0%, #F5F1EB 100%);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition);
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
 }
 
 .security-btn:hover {
-  border-color: #85685A;
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, #F5F1EB 0%, #EFE9E0 100%);
+  border-color: var(--primary);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
 }
-
 .security-btn .icon {
   font-size: 1.6rem;
 }
@@ -551,7 +553,7 @@ function doLogout() {
 
 .btn-title {
   font-weight: 700;
-  color: #85685A;
+  color: #0F172A;
 }
 
 .btn-desc {
@@ -576,8 +578,7 @@ function doLogout() {
   flex: 1;
 }
 
-/* Planos */
-.planos-section {
+.logout-section {
   grid-column: 1 / -1;
 }
 
@@ -588,19 +589,18 @@ function doLogout() {
 }
 
 .plano-card {
-  background: linear-gradient(135deg, #F9F5F0 0%, #F5F1EB 100%);
-  border-left: 5px solid #85685A;
-  border-radius: var(--radius-md);
-  padding: var(--spacing-xl);
-  transition: var(--transition);
-  border: 1px solid var(--border);
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
 }
 
 .plano-card:hover {
-  transform: translateX(6px);
-  box-shadow: var(--shadow-md);
-  border-color: #85685A;
+  transform: translateX(4px);
+  border-color: var(--primary);
 }
+
 
 .plano-header {
   display: flex;
@@ -646,6 +646,14 @@ function doLogout() {
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
 }
+
+.perfil-sidebar,
+.perfil-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 
 .btn-full {
   width: 100%;

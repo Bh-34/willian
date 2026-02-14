@@ -1,4 +1,5 @@
 <template>
+  
   <div class="dashboard">
     <!-- HEADER -->
     <section class="header-section">
@@ -9,6 +10,8 @@
         </div>
       </div>
     </section>
+
+    <div class="branco">
 
     <!-- PLANOS -->
     <section v-if="!hasPlano" class="section">
@@ -40,37 +43,38 @@
         </div>
       </div>
     </section>
-
+    
     <!-- BUSCA -->
-    <section class="section">
-      <div class="search-container">
-        <span class="search-icon">🔍</span>
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Buscar cursos..."
-          class="search-input"
-        />
-        <span v-if="search" class="search-clear" @click="search = ''">✕</span>
-      </div>
-    </section>
-
+    
+  
+    
     <!-- CURSOS -->
     <section class="section">
-      <div class="section-header">
-        <h2>Cursos Disponíveis</h2>
-        <p class="muted">{{ cursosFiltrados.length }} curso{{ cursosFiltrados.length !== 1 ? 's' : '' }} encontrado{{ cursosFiltrados.length !== 1 ? 's' : '' }}</p>
+      
+      <section class="section search-section">
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Buscar cursos..."
+            class="search-input"
+          />
+          <span v-if="search" class="search-clear" @click="search = ''">✕</span>
+        </div>
+          <div class="section-header">
+      <p class="muted">{{ cursosFiltrados.length }} curso{{ cursosFiltrados.length !== 1 ? 's' : '' }} encontrado{{ cursosFiltrados.length !== 1 ? 's' : '' }}</p>
       </div>
-
+      </section>
       <div v-if="cursosFiltrados.length > 0" class="courses-grid">
         <div
-          v-for="curso in cursosFiltrados"
-          :key="curso.id"
-          class="course-card"
-          @click="abrirCurso(curso)"
+        v-for="curso in cursosFiltrados"
+        :key="curso.id"
+        class="course-card"
+        @click="abrirCurso(curso)"
         >
-          <div class="course-header">
-            <span class="course-icon">📖</span>
+        <div class="course-header">
+            <span class="course-icon"></span>
             <span v-if="!hasPlano" class="lock-badge">🔒</span>
           </div>
           <h3>{{ curso.titulo }}</h3>
@@ -85,7 +89,8 @@
         <p>Nenhum curso encontrado com "<strong>{{ search }}</strong>"</p>
       </div>
     </section>
-  </div>
+    </div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -151,10 +156,13 @@ export default defineComponent({
 
 <style scoped>.dashboard {
   display: flex;
-  min-width: 180vh;
   flex-direction: column;
-  gap: var(--spacing-2xl);
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  margin: 2rem auto;
 }
+
 
 /* HEADER — MESMO PADRÃO DO LOGIN */
 .header-section {
@@ -169,12 +177,85 @@ export default defineComponent({
   color: white;
   font-size: 2rem;
   font-weight: 800;
-  margin-bottom: var(--spacing-sm);
+
 }
 
 .header-section .muted {
   color: rgba(255,255,255,0.85);
 }
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2.5rem;
+}
+
+
+.branco h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.search-container {
+  margin-top: 2rem;
+    position: relative;
+  max-width: 500px;
+}
+.search-section {
+  display: flex;
+  justify-content: center;
+}
+
+.section search-section {
+  display: flex;
+  flex-direction: row;
+}
+
+.search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.search-clear {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+
+.branco p {
+  color: #64748b;
+  margin-bottom: 2rem;
+}
+
+.branco {
+  background: #f8fafc; 
+  padding: 3rem 2rem;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  margin-top: -20px; 
+}
+
+.header-section {
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding-bottom: 4rem;
+}
+
 
 /* SECTION */
 .section {
@@ -182,6 +263,7 @@ export default defineComponent({
   flex-direction: column;
   gap: var(--spacing-lg);
 }
+
 
 /* PLANOS */
 .plan-card {
@@ -195,6 +277,7 @@ export default defineComponent({
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
   position: relative;
+    max-width: 380px;
 }
 
 .plan-card:hover {
@@ -232,36 +315,36 @@ export default defineComponent({
 
 /* SEARCH */
 .search-input {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px 14px 45px;
-  transition: var(--transition);
+  width: 100%;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 14px 20px 14px 48px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
 }
 
 .search-input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
   outline: none;
 }
 
 /* CURSOS */
 .course-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xl);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  transition: var(--transition);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
+  background: white;
+  border-radius: 6px;
+  padding: 2rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  border-bottom: 2px solid  #0F172A;
 }
 
 .course-card:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-4px);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
 }
 
 .course-card h3 {

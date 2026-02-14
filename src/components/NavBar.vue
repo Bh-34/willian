@@ -66,14 +66,14 @@ export default defineComponent({
 
 <style scoped>
 .navbar {
-  background: linear-gradient(135deg, #5A4436 0%, #85685A 100%);
+  background: #0F172A;
   color: white;
   padding: var(--spacing-md) 0;
   box-shadow: var(--shadow-lg);
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 2px solid #CB8E5F;
+  border-bottom: 2px solid #ffffff;
 }
 
 .nav-container {

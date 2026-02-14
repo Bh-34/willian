@@ -127,11 +127,13 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>.auth-container {
+<style scoped>
+.auth-container {
   display: flex;
-  justify-content: center;
-  min-height: 89vh;
+  min-height: 100vh;
+  width: 100%;
 }
+
 
 .auth-left {
   flex: 1;
@@ -141,7 +143,6 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   padding: 60px;
-  min-width: 65%;
 }
 
 .brand {
@@ -170,18 +171,25 @@ export default defineComponent({
   color: #E2E8F0;
 }
 
-.auth-right {
+.auth-left {
   flex: 1;
+}
+
+.auth-right {
+  flex: 1.4;
+}
+
+.auth-right {
   background: #F8FAFC;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 40px;
-  min-width: 75%;
 }
 
 .auth-card {
   width: 100%;
+  max-height: 100%;
   max-width: 380px;
   background: white;
   padding: 40px;
@@ -215,7 +223,7 @@ label {
 }
 
 input {
-  padding: 12px;
+  padding: 6px;
   border: 1px solid #CBD5E1;
   border-radius: 6px;
   font-size: 0.95rem;
