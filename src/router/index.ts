@@ -8,6 +8,8 @@ import Visualizaçao from '@/views/visualizacao.vue'
 import Pagando from '@/views/Pagando.vue'
 import Curso from '@/views/Curso.vue'
 import AulaView from '@/views/Aula.vue'
+import meusCursos from '@/views/meusCursos.vue'
+import AdminPlanos from '@/views/AdminPlanos.vue'
 
 
 const routes = [
@@ -16,9 +18,11 @@ const routes = [
   { path: '/cadastro', name: 'Cadastro', component: Cadastro },
   {path: '/perfil', name: 'Perfil', component: Perfil, meta: { requiresAuth: true } },
   {path: '/visualizacao', name: 'visualizacao', component: Visualizaçao, meta: { requiresAuth: true } },
-   {path: '/pagando', name: 'pagando', component: Pagando, meta: { requiresAuth: true } },
-   {path: '/cursos/:id',name: 'curso',component: Curso,meta: { requiresAuth: true }},
-   {path: '/aulas/:id',name: 'aula',component: AulaView,meta: { requiresAuth: true, requiresPlano: true }}
+  {path: '/pagando', name: 'pagando', component: Pagando, meta: { requiresAuth: true } },
+  {path: '/cursos/:id',name: 'curso',component: Curso,meta: { requiresAuth: true }},
+  {path: '/meus-cursos',name: 'meuscursos',component: meusCursos,meta: { requiresAuth: true }},
+  {path: '/aulas/:id',name: 'aula',component: AulaView,meta: { requiresAuth: true, requiresPlano: true }},
+  {path: '/admin/planos',component: AdminPlanos,meta: { requiresAdmin: true }}
 ]
 
 const router = createRouter({
@@ -44,6 +48,10 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresPlano && !user?.plano_id) {
     next({ name: 'Dashboard' })
     return
+  }
+
+    if (to.meta.requiresAdmin && user?.admin !== 1) {
+    return next('/')
   }
 
   next()

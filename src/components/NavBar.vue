@@ -15,6 +15,7 @@
       <div class="nav-right" :class="{ open: mobileMenuOpen }">
         <router-link to="/" class="nav-link">Dashboard</router-link>
         <router-link to="/perfil" class="nav-link">Perfil</router-link>
+       
 
         <template v-if="!isLogged">
           <router-link to="/cadastro" class="nav-link">Cadastro</router-link>
@@ -23,6 +24,14 @@
 
         <template v-else>
           <div class="user-area">
+             <router-link 
+      v-if="isAdmin" 
+      to="/admin/planos"
+      class="nav-link"
+    >
+      Admin
+    </router-link>
+             <router-link to="/meus-cursos" class="nav-link">meus cursos</router-link>
             <span class="user-name">{{ userName }}</span>
             <button class="btn-logout" @click="doLogout">Sair</button>
           </div>
@@ -54,11 +63,16 @@ export default defineComponent({
       router.push('/login')
     }
 
+const isAdmin = computed(() => {
+  return user.value?.admin === 1
+})
+
     return {
       isLogged,
       userName,
       doLogout,
-      mobileMenuOpen
+      mobileMenuOpen,
+      isAdmin
     }
   }
 })

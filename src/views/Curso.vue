@@ -6,10 +6,22 @@
         <button @click="voltar" class="btn-back">← Voltar</button>
         <h1>{{ curso.titulo }}</h1>
         <p class="muted">{{ curso.descricao }}</p>
+        <button @click="salvarCurso" class="btn salvar">
+  {{ salvo ? '★ Salvo' : '☆ Salvar curso' }}
+</button>
       </div>
     </div>
 
-    <!-- Módulos -->
+<div
+  v-if="erroPlano"
+  class="erro-plano"
+>
+  <p>{{ erroPlano }}</p>
+  <button @click="$router.push('/planos')" class="btn-upgrade">
+    Ver planos
+  </button>
+</div>
+
     <section class="modulos-section">
       <div class="section-intro">
         <h2>Conteúdo do Curso</h2>
@@ -68,6 +80,8 @@ export default defineComponent({
     const user = useUser()
 
     const curso = ref<any>(null)
+    const salvo = ref(false)
+    const erroPlano = ref<string | null>(null)
     const expandedModulos = ref<Record<string, boolean>>({})
 
     async function carregarCurso() {
@@ -76,22 +90,74 @@ export default defineComponent({
         return
       }
 
-      const response = await api.get(`/cursos/${route.params.id}`)
-      curso.value = response.data
-      
-      // Expandir primeiro módulo por padrão
-      if (curso.value?.modulos?.length > 0) {
-        expandedModulos.value['0'] = true
+      try {
+        const response = await api.get(`/cursos/${route.params.id}`)
+        curso.value = response.data
+
+        if (curso.value?.modulos?.length > 0) {
+          expandedModulos.value['0'] = true
+        }
+
+        await verificarSeEstaSalvo()
+
+      } catch (e) {
+        console.warn('Erro ao carregar curso', e)
       }
     }
+
+    async function verificarSeEstaSalvo() {
+      if (!curso.value) return
+
+      try {
+        const res = await api.get(`/cursos/${curso.value.id}/salvo`)
+        salvo.value = res.data.salvo
+      } catch (e) {
+        console.warn('Erro ao verificar se está salvo', e)
+      }
+    }
+
+    async function salvarCurso() {
+      if (!curso.value) return
+
+      try {
+        const response = await api.post(`/cursos/${curso.value.id}/salvar`)
+        salvo.value = response.data.salvo
+      } catch (e) {
+        console.warn('Erro ao salvar curso', e)
+      }
+    }
+
+    async function abrirAula(aula: any) {
+  erroPlano.value = null;
+
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      erroPlano.value = 'Usuário não autenticado';
+      return;
+    }
+
+    // Requisição com token explícito
+    await api.get(`/aulas/${aula.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    router.push({ name: 'aula', params: { id: aula.id } });
+
+  } catch (error: any) {
+    if (error.response?.status === 403) {
+      erroPlano.value = error.response.data.message;
+    } else {
+      erroPlano.value = 'Erro ao carregar aula';
+    }
+  }
+}
 
     function toggleModulo(idx: string | number) {
       const key = String(idx)
       expandedModulos.value[key] = !expandedModulos.value[key]
-    }
-
-    function abrirAula(aula: any) {
-      router.push({ name: 'aula', params: { id: aula.id } })
     }
 
     function voltar() {
@@ -100,10 +166,21 @@ export default defineComponent({
 
     onMounted(carregarCurso)
 
-    return { curso, abrirAula, voltar, toggleModulo, expandedModulos }
+    return {
+      curso,
+      salvo,
+      erroPlano,
+      salvarCurso,
+      abrirAula,
+      voltar,
+      toggleModulo,
+      expandedModulos
+    }
   }
 })
 </script>
+
+
 
 <style scoped>
 .curso-container {
@@ -137,6 +214,33 @@ export default defineComponent({
   font-weight: 600;
   margin-bottom: 1.5rem;
   transition: all 0.3s ease;
+}
+.erro-plano {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  margin: 0 auto;
+  max-width: 1100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.btn-upgrade {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-upgrade:hover {
+  background: #1d4ed8;
 }
 
 .btn-back:hover {

@@ -19,36 +19,52 @@
         <h2>Nossos Planos</h2>
         <p class="muted">Escolha o melhor para você</p>
       </div>
-      <div class="plans-grid">
-        <div
-          v-for="plano in planos"
-          :key="plano.id"
-          class="plan-card"
-          :class="{ featured: plano.id === 2 }"
-        >
-          <div class="plan-badge" v-if="plano.id === 2">Mais Popular</div>
-          <h3>{{ plano.nome }}</h3>
-          <div class="price">R$ {{ plano.preco?.toLocaleString('pt-BR') }}</div>
+    <div class="plans-grid">
+  <div
+    v-for="plano in planos"
+    :key="plano.nome"
+    class="plan-card"
+  >
+    <h3>{{ plano.nome }}</h3>
 
-          <ul class="benefits">
-            <li v-for="b in plano.beneficios" :key="b.chave" class="benefit-item">
-              <span class="check">✓</span>
-              {{ b.texto }}
-            </li>
-          </ul>
+    <div class="price">
+      R$ {{ planoAtual(plano)?.preco?.toLocaleString('pt-BR') }}
+    </div>
 
-          <button class="btn primary btn-full" @click="selecionarPlano(plano)">
-            Assinar Plano
-          </button>
-        </div>
-      </div>
-    </section>
+    <p class="period">
+      {{ plano.mostrarAnual ? 'Plano Anual (365 dias)' : 'Plano Mensal (30 dias)' }}
+    </p>
+
+    <ul class="benefits">
+      <li
+        v-for="b in planoAtual(plano)?.beneficios"
+        :key="b.chave"
+        class="benefit-item"
+      >
+        <span class="check">✓</span>
+        {{ b.texto }}
+      </li>
+    </ul>
+
+    <button class="btn-toggle-period" @click="alternar(plano)">
+      {{ plano.mostrarAnual ? 'Ver Mensal' : 'Ver Anual (20% OFF)' }}
+    </button>
+
+    <button
+      class="btn primary btn-full"
+      @click="selecionarPlano(planoAtual(plano))"
+    >
+      Assinar Plano
+    </button>
+  </div>
+    </div>
+</section>
+
+<!-- BUSCA -->
     
-    <!-- BUSCA -->
-    
-  
-    
-    <!-- CURSOS -->
+
+
+<!-- CURSOS -->
     <section class="section">
       
       <section class="section search-section">
@@ -59,12 +75,12 @@
             type="text"
             placeholder="Buscar cursos..."
             class="search-input"
-          />
+            />
           <span v-if="search" class="search-clear" @click="search = ''">✕</span>
         </div>
-          <div class="section-header">
+        <div class="section-header">
       <p class="muted">{{ cursosFiltrados.length }} curso{{ cursosFiltrados.length !== 1 ? 's' : '' }} encontrado{{ cursosFiltrados.length !== 1 ? 's' : '' }}</p>
-      </div>
+    </div>
       </section>
       <div v-if="cursosFiltrados.length > 0" class="courses-grid">
         <div
@@ -84,13 +100,13 @@
           </div>
         </div>
       </div>
-
+      
       <div v-else class="empty-state">
         <p>Nenhum curso encontrado com "<strong>{{ search }}</strong>"</p>
       </div>
     </section>
     </div>
-    </div>
+</div>
 </template>
 
 <script lang="ts">
@@ -104,6 +120,7 @@ export default defineComponent({
     const router = useRouter()
     const user = useUser()
 
+    const planosRaw = ref<any[]>([])
     const planos = ref<any[]>([])
     const cursos = ref<any[]>([])
     const search = ref('')
@@ -115,20 +132,61 @@ export default defineComponent({
         c.titulo.toLowerCase().includes(search.value.toLowerCase())
       )
     )
+function agruparPlanos(lista: any[]) {
+  const agrupados: any = {}
 
-    async function carregarDados() {
-      try {
-        const [planosRes, cursosRes] = await Promise.all([
-          api.get('/planos'),
-          api.get('/cursos')
-        ])
+  lista.forEach(plano => {
+    const nomeBase = plano.nome
+      .replace(' Mensal', '')
+      .replace(' Anual', '')
 
-        planos.value = planosRes.data
-        cursos.value = cursosRes.data
-      } catch (e) {
-        console.warn('Erro ao carregar dados', e)
+    if (!agrupados[nomeBase]) {
+      agrupados[nomeBase] = {
+        nome: nomeBase,
+        mensal: null,
+        anual: null,
+        mostrarAnual: false
       }
     }
+
+    if (plano.duracao === 'mensal') {
+      agrupados[nomeBase].mensal = plano
+    }
+
+    if (plano.duracao === 'anual') {
+      agrupados[nomeBase].anual = plano
+    }
+  })
+
+  planos.value = Object.values(agrupados)
+}
+
+function alternar(plano: any) {
+  plano.mostrarAnual = !plano.mostrarAnual
+}
+
+function planoAtual(plano: any) {
+  return plano.mostrarAnual ? plano.anual : plano.mensal
+}
+
+
+async function carregarDados() {
+  try {
+    const [planosRes, cursosRes] = await Promise.all([
+      api.get('/planos'),
+      api.get('/cursos')
+    ])
+
+    planosRaw.value = planosRes.data
+    cursos.value = cursosRes.data
+
+    agruparPlanos(planosRes.data)
+
+  } catch (e) {
+    console.warn('Erro ao carregar dados', e)
+  }
+}
+
 
     function selecionarPlano(plano: any) {
       sessionStorage.setItem('planoSelecionado', JSON.stringify(plano))
@@ -148,7 +206,9 @@ export default defineComponent({
       selecionarPlano,
       abrirCurso,
       search,
-      hasPlano
+      hasPlano,
+      alternar,
+      planoAtual,
     }
   }
 })
@@ -227,7 +287,28 @@ export default defineComponent({
   font-size: 0.9rem;
   color: #94a3b8;
 }
+.period {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
 
+.btn-toggle-period {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 8px;
+  border-radius: var(--radius-md);
+  width: 100%;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-toggle-period:hover {
+  background: var(--primary);
+  color: white;
+}
 .search-clear {
   position: absolute;
   right: 18px;
