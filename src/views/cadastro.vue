@@ -1,36 +1,86 @@
 <template>
-  <div class="register-page">
-    <div class="card register-card">
-      <h2>Crie sua conta</h2>
-      <form @submit.prevent="submit">
-        <label>
-          Nome
-          <input v-model="nome" type="text" placeholder="Seu nome" required />
-        </label>
+  <div class="auth-container">
+    <div class="auth-left">
+      <div class="brand">
+        <h1>Comece agora</h1>
+        <p>
+          Crie sua conta para acessar os melhores cursos e evoluir com conteúdo estruturado e profissional.
+        </p>
 
-        <label>
-          Email
-          <input v-model="email" type="email" placeholder="seu@exemplo.com" required />
-        </label>
+        <ul>
+          <li>Aprendizado contínuo</li>
+          <li>Conteúdo atualizado</li>
+          <li>Acesso imediato após assinatura</li>
+        </ul>
+      </div>
+    </div>
 
-        <label>
-          Telefone
-          <input v-model="telefone" type="tel" placeholder="(XX) X XXXX-XXXX" />
-        </label>
+    <div class="auth-right">
+      <div class="auth-card">
+        <h2>Criar conta</h2>
+        <p class="muted">
+          Preencha seus dados para começar.
+        </p>
 
-        <label>
-          Senha
-          <input v-model="senha" type="password" placeholder="Senha (mín. 6 caracteres)" minlength="6" required />
-        </label>
+        <form @submit.prevent="submit">
+          <div class="form-group">
+            <label>Nome completo</label>
+            <input v-model="nome" type="text" required />
+          </div>
 
-        <div v-if="error" class="error">{{ error }}</div>
-        <div v-if="success" class="success">{{ success }}</div>
+          <div class="form-group">
+            <label>Email</label>
+            <input v-model="email" type="email" required />
+          </div>
 
-        <div style="display:flex; gap:8px; margin-top:8px">
-          <button class="btn primary" :disabled="loading">{{ loading ? 'Criando...' : 'Cadastrar' }}</button>
-          <router-link to="/login" class="btn">Já tenho conta</router-link>
+          <div class="form-group">
+            <label>CPF</label>
+            <input v-model="cpf" type="text" required />
+          </div>
+
+          <div class="form-group">
+            <label>Telefone</label>
+            <input v-model="telefone" type="tel" />
+          </div>
+
+          <div class="form-group">
+            <label>Senha</label>
+
+            <!-- 🔥 ALTERAÇÃO AQUI -->
+            <div class="password-wrapper">
+              <input
+                v-model="senha"
+                :type="mostrarSenha ? 'text' : 'password'"
+                minlength="6"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                @click="mostrarSenha = !mostrarSenha"
+              >
+                {{ mostrarSenha ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
+            <!-- 🔥 FIM ALTERAÇÃO -->
+
+          </div>
+
+          <div v-if="error" class="alert-error">
+            {{ error }}
+          </div>
+
+          <button class="btn-primary" :disabled="loading">
+            {{ loading ? 'Criando conta...' : 'Cadastrar' }}
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <router-link to="/login">
+            Já possui conta? Acessar
+          </router-link>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
@@ -39,13 +89,16 @@
 import { defineComponent, ref } from 'vue'
 import { register } from '@/services/authService'
 import { useRouter } from 'vue-router'
+import { login } from '@/services/authService'
 
 export default defineComponent({
   setup() {
     const nome = ref('')
     const email = ref('')
+    const cpf = ref('')
     const telefone = ref('')
     const senha = ref('')
+    const mostrarSenha = ref(false) // 🔥 ADICIONADO
     const loading = ref(false)
     const error = ref('')
     const success = ref('')
@@ -53,17 +106,18 @@ export default defineComponent({
 
     function validarTelefone(t: string) {
       if (!t) return true
-      // validação simples: contém apenas dígitos, espaços, parênteses ou traço
       return /^[-+() 0-9]+$/.test(t)
     }
 
     async function submit() {
       error.value = ''
       success.value = ''
+      
       if (senha.value.length < 6) {
         error.value = 'Senha deve ter ao menos 6 caracteres'
         return
       }
+      
       if (!validarTelefone(telefone.value)) {
         error.value = 'Telefone inválido'
         return
@@ -71,9 +125,16 @@ export default defineComponent({
 
       loading.value = true
       try {
-        await register({ nome: nome.value, email: email.value, senha: senha.value, telefone: telefone.value })
-        success.value = 'Conta criada com sucesso! Você já está logado.'
-        setTimeout(() => router.push('/'), 900)
+        await register({ 
+          nome: nome.value, 
+          email: email.value, 
+          cpf: cpf.value, 
+          senha: senha.value, 
+          telefone: telefone.value 
+        })
+        await login(email.value, senha.value)
+        success.value = 'Conta criada com sucesso! Redirecionando...'
+        setTimeout(() => router.push('/login'), 1500)
       } catch (e: any) {
         error.value = e.message || 'Erro ao criar conta'
       } finally {
@@ -81,16 +142,196 @@ export default defineComponent({
       }
     }
 
-    return { nome, email, telefone, senha, loading, error, success, submit }
+    return { 
+      nome, 
+      email, 
+      telefone, 
+      cpf, 
+      senha, 
+      mostrarSenha, // 🔥 ADICIONADO
+      loading, 
+      error, 
+      success, 
+      submit 
+    }
   }
 })
 </script>
 
 <style scoped>
-.register-page{ display:flex; justify-content:center; padding:28px }
-.register-card{ width:420px; display:flex; flex-direction:column; gap:12px; padding:20px }
-form label{ display:flex; flex-direction:column; gap:6px; font-weight:600 }
-input{ padding:8px; border-radius:8px; border:1px solid #e5e7eb }
-.error{ color:#ef4444 }
-.success{ color:#10b981 }
+.auth-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.auth-left {
+  flex: 1;
+  background: #0F172A;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+}
+
+.brand {
+  max-width: 420px;
+}
+
+.brand h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.brand p {
+  margin-bottom: 20px;
+  line-height: 1.6;
+  color: #CBD5E1;
+}
+
+.brand ul {
+  list-style: none;
+  padding: 0;
+}
+
+.brand li {
+  margin-bottom: 10px;
+  color: #E2E8F0;
+}
+
+.auth-right {
+  flex: 1.4;
+  background: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.auth-card {
+  width: 100%;
+  max-height: 100%;
+  max-width: 380px;
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+}
+
+.auth-card h2 {
+  margin-bottom: 6px;
+  font-size: 1.4rem;
+  color: #0F172A;
+}
+
+.muted {
+  color: #64748B;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+input {
+  padding: 6px;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+input:focus {
+  border-color: #0F172A;
+  outline: none;
+}
+
+/* 🔥 CSS ADICIONADO */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 80px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  color: #0F172A;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.toggle-password:hover {
+  opacity: 0.7;
+}
+/* 🔥 FIM */
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: #0F172A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #1E293B;
+}
+
+.alert-error {
+  background: #FEE2E2;
+  color: #991B1B;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.auth-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-footer a {
+  color: #0F172A;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .auth-container {
+    flex-direction: column;
+  }
+
+  .auth-left {
+    display: none;
+  }
+}
 </style>

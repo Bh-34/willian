@@ -1,13 +1,17 @@
 <template>
-  <NavBar />
-  <main class="container">
-    <router-view />
-  </main>
+ 
+    <NavBar />
+<main :class="$route.path.includes('dashboard') ? 'container-fluid' : 'container'">
+
+      <router-view />
+    </main>
+  
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import NavBar from '@/components/NavBar.vue'
+
 
 export default defineComponent({
   components: { NavBar },
@@ -15,9 +19,23 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
 .container {
-  padding: 16px;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  padding: var(--spacing-lg);
+}
+
+.container-fluid {
+  width: 100%;
+  padding: var(--spacing-lg);
+}
+
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
 }
 </style>

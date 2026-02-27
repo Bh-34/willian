@@ -1,68 +1,118 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import api from './api'
 
-export type User = { nome?: string; email: string; token: string; telefone?: string }
+const user = ref<any>(null)
 
-const STORAGE_TOKEN_KEY = 'auth_token'
-const STORAGE_USER_KEY = 'auth_user'
-const STORAGE_USERS_KEY = 'auth_users'
+const storedUser = localStorage.getItem('user')
+const token = localStorage.getItem('token')
 
-// Estado reativo para que componentes possam reagir a mudanças
-const user = ref<User | null>(JSON.parse(localStorage.getItem(STORAGE_USER_KEY) || 'null'))
-
-// Lista de usuários mock persistida no localStorage
-const initialUsers = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || 'null') || [
-  { nome: 'Usuário de Teste', email: 'user@example.com', password: 'senha123', telefone: '', token: 'fake-jwt-token' }
-]
-
-function saveUsers(list: any[]) {
-  localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(list))
+if (token) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 
-export async function login(email: string, password: string): Promise<User> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const found: any = initialUsers.find((u: any) => u.email === email && u.password === password)
-      if (found) {
-        const u = { email: found.email, token: found.token || 'token-' + Date.now(), nome: found.nome, telefone: found.telefone }
-        localStorage.setItem(STORAGE_TOKEN_KEY, u.token)
-        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(u))
-        user.value = u
-        resolve(u)
-      } else {
-        reject(new Error('Email ou senha inválidos'))
-      }
-    }, 600)
-  })
-}
-
-export async function register(payload: { nome: string; email: string; senha: string; telefone?: string }) {
-  return new Promise<User>((resolve, reject) => {
-    setTimeout(() => {
-      const exists = initialUsers.find((u: any) => u.email === payload.email)
-      if (exists) return reject(new Error('Email já cadastrado'))
-
-      const token = 'token-' + Date.now()
-      const novo: any = { nome: payload.nome, email: payload.email, password: payload.senha, telefone: payload.telefone || '', token }
-      initialUsers.push(novo)
-      saveUsers(initialUsers)
-
-      const u: User = { nome: novo.nome, email: novo.email, token, telefone: novo.telefone }
-      localStorage.setItem(STORAGE_TOKEN_KEY, token)
-      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(u))
-      user.value = u
-      resolve(u)
-    }, 700)
-  })
-}
-
-export function logout() {
-  localStorage.removeItem(STORAGE_TOKEN_KEY)
-  localStorage.removeItem(STORAGE_USER_KEY)
+try {
+  if (storedUser && storedUser !== 'undefined') {
+    user.value = JSON.parse(storedUser)
+  } else {
+    user.value = null
+  }
+} catch {
+  localStorage.removeItem('user')
   user.value = null
 }
 
-export function isAuthenticated(): boolean {
-  return !!localStorage.getItem(STORAGE_TOKEN_KEY)
+try {
+  if (storedUser && storedUser !== 'undefined') {
+    user.value = JSON.parse(storedUser)
+  } else {
+    user.value = null
+  }
+} catch (e) {
+  console.warn('Erro ao carregar usuário do localStorage:', e)
+  localStorage.removeItem('user')
+  user.value = null
 }
 
-export { user }
+
+export async function login(email: string, senha: string) {
+  const response = await api.post('/login', { email, senha })
+
+  console.log('LOGIN RESPONSE:', response.data)
+
+  const { token, usuario: userData } = response.data
+
+  localStorage.setItem('token', token)
+  localStorage.setItem('user', JSON.stringify(userData))
+
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+  user.value = userData
+  return userData
+}
+
+export async function register(data: {
+  nome: string
+  email: string
+  senha: string
+  telefone?: string
+  cpf: string
+}) {
+  try {
+    const response = await api.post('/cadastro', {
+      nome: data.nome,
+      email: data.email,
+      senha: data.senha,
+      telefone: data.telefone,
+      cpf: data.cpf
+    })
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Erro ao criar conta')
+  }
+}
+
+export async function fetchPerfil() {
+  const response = await api.get('/perfil')
+  user.value = response.data.usuario
+  localStorage.setItem('user', JSON.stringify(response.data.usuario))
+  return response.data.usuario
+}
+
+export function logout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  delete api.defaults.headers.common['Authorization']
+  user.value = null
+}
+
+export const isAuthenticated = computed(() => {
+  return !!user.value
+})
+
+export function useUser() {
+  return user
+}
+
+
+export async function updateUser(data: {
+  nome?: string
+  email?: string
+  telefone?: string
+  senha?: string
+}) {
+  if (!user.value?.id) {
+    throw new Error('Usuário não autenticado')
+  }
+
+  const response = await api.put(`/usuarios/${user.value.id}`, data)
+
+  const updatedUser = response.data.usuario || response.data
+
+  user.value = updatedUser
+  localStorage.setItem('user', JSON.stringify(updatedUser))
+
+  return updatedUser
+}
+
+
+
+
