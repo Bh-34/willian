@@ -1,7 +1,6 @@
  <template>
   <div class="dashboard">
     
-    <!-- HEADER -->
     <section class="header-section">
       <div class="header-content">
         <div>
@@ -104,7 +103,6 @@ onMounted(() => {
 
 <style scoped>
 
-/* Layout igual dashboard */
 .dashboard {
   display: flex;
   flex-direction: column;
@@ -112,7 +110,6 @@ onMounted(() => {
   margin: 2rem auto;
 }
 
-/* HEADER PADRÃO */
 .header-section {
   background: var(--primary);
   color: white;
@@ -131,7 +128,6 @@ onMounted(() => {
   color: rgba(255,255,255,0.85);
 }
 
-/* Fundo branco */
 .branco {
   background: #f8fafc;
   padding: 3rem 2rem;
@@ -145,7 +141,6 @@ onMounted(() => {
   gap: var(--spacing-lg);
 }
 
-/* Card da tabela */
 .table-card {
   background: white;
   border-radius: var(--radius-xl);

@@ -56,7 +56,7 @@ onMounted(async () => {
   try {
     const { data } = await api.get(`/aulas/${route.params.id}`)
     aula.value = data
-    concluida.value = data.foi_concluida // O Laravel deve enviar este campo
+    concluida.value = data.foi_concluida 
   } catch (error) {
     console.error("Erro ao carregar aula", error)
   }

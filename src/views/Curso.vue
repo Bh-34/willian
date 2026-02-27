@@ -11,34 +11,33 @@
       </div>
 
       <div class="rating-wrapper">
-  <div class="stars-interactive">
-    <span 
-      v-for="i in 5" 
-      :key="i" 
-      class="star-btn"
-      :class="{ 
-        'filled': i <= (hoverRating || curso.media_notas),
-        'hovering': i <= hoverRating 
-      }"
-      @mouseover="hoverRating = i"
-      @mouseleave="hoverRating = 0"
-      @click="votar(i)"
-    >
-      ★
-    </span>
-  </div>
-  <span class="rating-info">
-    <strong>{{ curso.media_notas }}</strong> 
-    <span class="muted">({{ curso.total_avaliacoes }} avaliações)</span>
-  </span>
-</div>
+        <div class="stars-interactive">
+          <span
+            v-for="i in 5"
+            :key="i"
+            class="star-btn"
+            :class="{
+              filled: i <= (hoverRating || curso.media_notas),
+              hovering: i <= hoverRating,
+            }"
+            @mouseover="hoverRating = i"
+            @mouseleave="hoverRating = 0"
+            @click="votar(i)"
+          >
+            ★
+          </span>
+        </div>
+        <span class="rating-info">
+          <strong>{{ curso.media_notas }}</strong>
+          <span class="muted">({{ curso.total_avaliacoes }} avaliações)</span>
+        </span>
+      </div>
     </div>
 
-
     <div v-if="erroPlano" class="erro-plano">
-      <p>{{ erroPlano }}</p>
-      <button @click="$router.push('/planos')" class="btn-upgrade">
-        Ver planos
+      <p>⚠️ {{ erroPlano }}</p>
+      <button @click="abrirModalPlanos" class="btn primary">
+        Escolher um Plano
       </button>
     </div>
 
@@ -70,13 +69,7 @@
 
         <transition name="collapse">
           <div v-if="expandedModulos[index]" class="modulo-content">
-            <div
-              v-for="aula in modulo.aulas"
-              :key="aula.id"
-              class="aula-item"
-              :class="{ 'aula-concluida': aula.foi_concluida }"
-              @click="abrirAula(aula)"
-            >
+           <div v-for="aula in modulo.aulas" :key="aula.id" class="aula-item" @click.stop.prevent="abrirAula(aula)">
               <div class="aula-icon">
                 <span v-if="aula.foi_concluida">✅</span>
                 <span v-else>▶</span>
@@ -85,21 +78,88 @@
                 <p class="aula-title">{{ aula.titulo }}</p>
               </div>
               <div class="aula-stats">
-    <span class="views-count">
-      👁️ {{ aula.views || 0 }}
-    </span>
-    <div class="aula-badge" v-if="aula.tem_pdf">PDF</div>
-  </div>
+                <span class="views-count"> 👁️ {{ aula.views || 0 }} </span>
+                <div class="aula-badge" v-if="aula.tem_pdf">PDF</div>
+              </div>
             </div>
           </div>
         </transition>
       </div>
     </section>
+   
   </div>
+   <transition name="fade">
+      <div
+        v-if="showPlanModal"
+        class="modal-overlay"
+        @click.self="showPlanModal = false"
+      >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Nossos Planos</h2>
+            <button class="modal-close" @click="showPlanModal = false">
+              ✕
+            </button>
+          </div>
+          <p class="muted-text">Escolha o melhor para você</p>
+
+          <div class="plans-grid">
+            <div
+              v-for="plano in planos"
+              :key="plano.nome"
+              class="plan-modal-card"
+            >
+              <h3>{{ plano.nome }}</h3>
+
+              <div class="price">
+                R$
+                {{
+                  planoAtual(plano)?.preco?.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })
+                }}
+              </div>
+
+              <p class="period">
+                {{
+                  plano.mostrarAnual
+                    ? "Plano Anual (365 dias)"
+                    : "Plano Mensal (30 dias)"
+                }}
+              </p>
+
+              <ul class="benefits">
+                <li
+                  v-for="b in planoAtual(plano)?.beneficios"
+                  :key="b.chave"
+                  class="benefit-item"
+                >
+                  <span class="check">✓</span>
+                  {{ b.texto }}
+                </li>
+              </ul>
+
+              <button class="btn-toggle-period" @click="alternar(plano)">
+                {{ plano.mostrarAnual ? "Ver Mensal" : "Ver Anual (20% OFF)" }}
+              </button>
+
+             <button 
+  class="btn btn-full"
+  :class="planoAtual(plano)?.id === user?.plano_id ? 'secondary' : 'primary'"
+  :disabled="planoAtual(plano)?.id === user?.plano_id"
+  @click="selecionarPlano(planoAtual(plano))"
+>
+  {{ planoAtual(plano)?.id === user?.plano_id ? 'Seu Plano Atual' : 'Assinar Plano' }}
+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
 import { useUser } from "@/services/authService";
@@ -114,22 +174,28 @@ export default defineComponent({
     const erroPlano = ref<string | null>(null);
     const expandedModulos = ref<Record<string, boolean>>({});
     const hoverRating = ref(0);
+    const showPlanModal = ref(false);
+    const planos = ref<any[]>([]);
+onMounted(() => {
+  console.log("DADOS DO USUÁRIO LOGADO:", user.value);
+  carregarCurso();
+});
+async function carregarCurso() {
+  erroPlano.value = null;
 
-    async function carregarCurso() {
-      if (!user.value?.plano) {
-        router.push("/");
-        return;
-      }
-      try {
-        const response = await api.get(`/cursos/${route.params.id}`);
-        curso.value = response.data;
-        if (curso.value?.modulos?.length > 0) expandedModulos.value["0"] = true;
-        verificarSeEstaSalvo();
-      } catch (e) {
-        console.warn(e);
-        console.error("ERRO DETALHADO DO BACKEND:", (e as any)?.response?.data);
-      }
+  try {
+    const response = await api.get(`/cursos/${route.params.id}`);
+    curso.value = response.data;
+    if (curso.value?.modulos?.length > 0) expandedModulos.value["0"] = true;
+    verificarSeEstaSalvo();
+  } catch (e: any) {
+    if (e.response?.status === 403) {
+      erroPlano.value = e.response.data.message || "Seu plano não dá acesso a este curso.";
+    } else {
+      console.error("Erro ao carregar curso:", e);
     }
+  }
+}
 
     async function verificarSeEstaSalvo() {
       try {
@@ -139,18 +205,29 @@ export default defineComponent({
     }
 
     async function votar(nota: number) {
-    try {
-      const response = await api.post(`/cursos/${curso.value.id}/avaliar`, { nota });
-      
-      curso.value.media_notas = response.data.data.nova_media;
-      curso.value.total_avaliacoes = response.data.data.total_votos;
-      
-      alert("Obrigado por avaliar!");
-    } catch (e: any) {
-      alert(e.response?.data?.message || "Erro ao avaliar curso");
-    }
-  }
+      try {
+        const response = await api.post(`/cursos/${curso.value.id}/avaliar`, {
+          nota,
+        });
 
+        curso.value.media_notas = response.data.data.nova_media;
+        curso.value.total_avaliacoes = response.data.data.total_votos;
+
+        alert("Obrigado por avaliar!");
+      } catch (e: any) {
+        alert(e.response?.data?.message || "Erro ao avaliar curso");
+      }
+    }
+
+    const planosDisponiveis = computed(() => {
+      if (!user.value?.plano_id) return planos.value;
+      return planos.value.filter((grupo) => {
+        return (
+          grupo.mensal?.id !== user.value.plano_id &&
+          grupo.anual?.id !== user.value.plano_id
+        );
+      });
+    });
     async function salvarCurso() {
       try {
         const response = await api.post(`/cursos/${curso.value.id}/salvar`);
@@ -158,9 +235,55 @@ export default defineComponent({
       } catch (e) {}
     }
 
-    async function abrirAula(aula: any) {
-      router.push({ name: "aula", params: { id: aula.id } });
+    const alternar = (p: any) => (p.mostrarAnual = !p.mostrarAnual);
+    const planoAtual = (p: any) => (p.mostrarAnual ? p.anual : p.mensal);
+
+    function selecionarPlano(plano: any) {
+      sessionStorage.setItem("planoSelecionado", JSON.stringify(plano));
+      router.push("/visualizacao");
     }
+    function agruparPlanos(lista: any[]) {
+      const agrupados: any = {};
+      lista.forEach((plano) => {
+        const nomeBase = plano.nome
+          .replace(" Mensal", "")
+          .replace(" Anual", "");
+        if (!agrupados[nomeBase]) {
+          agrupados[nomeBase] = {
+            nome: nomeBase,
+            mensal: null,
+            anual: null,
+            mostrarAnual: false,
+          };
+        }
+        if (plano.duracao === "mensal") agrupados[nomeBase].mensal = plano;
+        if (plano.duracao === "anual") agrupados[nomeBase].anual = plano;
+      });
+      planos.value = Object.values(agrupados);
+    }
+  async function abrirModalPlanos() {
+  showPlanModal.value = true; 
+  
+  if (planos.value.length === 0) {
+    try {
+      const res = await api.get("/planos");
+      agruparPlanos(res.data);
+    } catch (error) {
+      console.error("Erro ao buscar planos:", error);
+      alert("Não foi possível carregar os planos agora.");
+    }
+  }
+}
+async function abrirAula(aula: any) {
+  try {
+    await api.get(`/aulas/${aula.id}`);
+    router.push({ name: "aula", params: { id: aula.id } });
+  } catch (e: any) {
+    if (e.response?.status === 403) {
+      erroPlano.value = e.response.data.message;
+    }
+  }
+}
 
     const toggleModulo = (idx: any) =>
       (expandedModulos.value[idx] = !expandedModulos.value[idx]);
@@ -168,18 +291,25 @@ export default defineComponent({
 
     onMounted(carregarCurso);
 
-    return {
-      curso,
-      salvo,
-      erroPlano,
-      salvarCurso,
-      abrirAula,
-      voltar,
-      toggleModulo,
-      expandedModulos,
-      hoverRating,
-    votar
-    };
+   return {
+  curso,
+  salvo,
+  erroPlano,
+  salvarCurso,
+  abrirAula,
+  voltar,
+  toggleModulo,
+  expandedModulos,
+  hoverRating,
+  votar,
+  showPlanModal,
+  planos, 
+  abrirModalPlanos,
+  alternar,
+  planoAtual,
+  selecionarPlano,
+  user
+};
   },
 });
 </script>
@@ -220,12 +350,94 @@ export default defineComponent({
 .star-btn {
   font-size: 1.5rem;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.3); /* Estrela vazia */
-  transition: transform 0.2s, color 0.2s;
+  color: rgba(255, 255, 255, 0.3);
+  transition:
+    transform 0.2s,
+    color 0.2s;
+}
+/* ESTILOS DO MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 900px;
+
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.modal-header h2 {
+  margin: 0;
+  color: #333;
+}
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+.plan-modal-card {
+  border: 1px solid #eee;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  transition: 0.3s;
+}
+.plan-modal-card:hover {
+  border-color: var(--primary);
+}
+.price {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  color: var(--primary);
+}
+
+.btn-toggle-period {
+  background: #f1f5f9;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 .star-btn.filled {
-  color: #fbbf24; /* Amarelo ouro */
+  color: #fbbf24;
 }
 
 .star-btn:hover {
@@ -262,7 +474,7 @@ export default defineComponent({
 
 .views-count {
   font-size: 0.8rem;
-  color: #64748b; 
+  color: #64748b;
   font-weight: 500;
   background: #f1f5f9;
   padding: 2px 8px;
@@ -274,9 +486,8 @@ export default defineComponent({
 
 .aula-item {
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
-
 }
 .btn-salvar {
   background: white;
@@ -307,8 +518,8 @@ export default defineComponent({
   align-items: center;
   cursor: pointer;
 }
-h1{
-color: white;
+h1 {
+  color: white;
 }
 .aula-item {
   display: flex;
@@ -342,5 +553,39 @@ color: white;
 }
 .toggle-icon.open {
   transform: rotate(180deg);
+}
+.erro-plano {
+  background: #fff5f5; /* Vermelho bem claro */
+  border: 1px dashed #feb2b2;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: 1rem 0;
+}
+
+.erro-plano p {
+  color: #c53030;
+  font-weight: 600;
+  margin: 0;
+}
+
+.btn-upgrade {
+  animation: pulse-button 2s infinite;
+}
+
+@keyframes pulse-button {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>

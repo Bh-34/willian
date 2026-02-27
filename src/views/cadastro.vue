@@ -45,7 +45,25 @@
 
           <div class="form-group">
             <label>Senha</label>
-            <input v-model="senha" type="password" minlength="6" required />
+
+            <!-- 🔥 ALTERAÇÃO AQUI -->
+            <div class="password-wrapper">
+              <input
+                v-model="senha"
+                :type="mostrarSenha ? 'text' : 'password'"
+                minlength="6"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                @click="mostrarSenha = !mostrarSenha"
+              >
+                {{ mostrarSenha ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
+            <!-- 🔥 FIM ALTERAÇÃO -->
+
           </div>
 
           <div v-if="error" class="alert-error">
@@ -67,11 +85,11 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { register } from '@/services/authService'
 import { useRouter } from 'vue-router'
+import { login } from '@/services/authService'
 
 export default defineComponent({
   setup() {
@@ -80,6 +98,7 @@ export default defineComponent({
     const cpf = ref('')
     const telefone = ref('')
     const senha = ref('')
+    const mostrarSenha = ref(false) // 🔥 ADICIONADO
     const loading = ref(false)
     const error = ref('')
     const success = ref('')
@@ -113,6 +132,7 @@ export default defineComponent({
           senha: senha.value, 
           telefone: telefone.value 
         })
+        await login(email.value, senha.value)
         success.value = 'Conta criada com sucesso! Redirecionando...'
         setTimeout(() => router.push('/login'), 1500)
       } catch (e: any) {
@@ -122,7 +142,18 @@ export default defineComponent({
       }
     }
 
-    return { nome, email, telefone, cpf, senha, loading, error, success, submit }
+    return { 
+      nome, 
+      email, 
+      telefone, 
+      cpf, 
+      senha, 
+      mostrarSenha, // 🔥 ADICIONADO
+      loading, 
+      error, 
+      success, 
+      submit 
+    }
   }
 })
 </script>
@@ -133,7 +164,6 @@ export default defineComponent({
   min-height: 100vh;
   width: 100%;
 }
-
 
 .auth-left {
   flex: 1;
@@ -171,15 +201,8 @@ export default defineComponent({
   color: #E2E8F0;
 }
 
-.auth-left {
-  flex: 1;
-}
-
 .auth-right {
   flex: 1.4;
-}
-
-.auth-right {
   background: #F8FAFC;
   display: flex;
   align-items: center;
@@ -234,6 +257,34 @@ input:focus {
   outline: none;
 }
 
+/* 🔥 CSS ADICIONADO */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 80px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  color: #0F172A;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.toggle-password:hover {
+  opacity: 0.7;
+}
+/* 🔥 FIM */
+
 .btn-primary {
   width: 100%;
   padding: 12px;
@@ -283,5 +334,4 @@ input:focus {
     display: none;
   }
 }
-
 </style>

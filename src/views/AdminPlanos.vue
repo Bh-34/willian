@@ -14,7 +14,6 @@
 
   <div class="plano-opcoes">
 
-    <!-- MENSAL -->
     <div v-if="plano.mensal" class="opcao">
       <h3>Mensal</h3>
 
@@ -35,7 +34,6 @@
       </ul>
     </div>
 
-    <!-- ANUAL -->
     <div v-if="plano.anual" class="opcao destaque">
       <h3>Anual</h3>
 
@@ -60,7 +58,6 @@
 
   </div>
 
-  <!-- BOTÃO ÚNICO -->
   <button class="btn-toggle" @click="togglePlanoGrupo(plano)">
     {{ planoAtivo(plano) ? 'Desativar Plano' : 'Ativar Plano' }}
   </button>
@@ -68,7 +65,6 @@
 </div>
     </div>
 
-    <!-- MODAL -->
     <div v-if="showModal" class="modal-overlay">
       <div class="modal">
         <h2>Criar Novo Plano</h2>

@@ -216,7 +216,6 @@ const isAdmin = computed(() => {
   transition: var(--transition);
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
   .mobile-menu-btn {
     display: flex;

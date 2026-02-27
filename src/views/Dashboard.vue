@@ -1,7 +1,7 @@
 <template>
   
   <div class="dashboard">
-    <!-- HEADER -->
+  
     <section class="header-section">
       <div class="header-content">
         <div>
@@ -13,7 +13,6 @@
 
     <div class="branco">
 
-    <!-- PLANOS -->
     <section v-if="!hasPlano" class="section">
       <div class="section-header">
         <h2>Nossos Planos</h2>
@@ -237,7 +236,6 @@ async function carregarDados() {
 }
 
 
-/* HEADER — MESMO PADRÃO DO LOGIN */
 .header-section {
   background: var(--primary);
   color: white;
@@ -264,7 +262,6 @@ async function carregarDados() {
   margin-top: 1rem;
 }
 
-/* Adicione junto aos outros estilos de curso */
 
 .course-rating {
   display: flex;

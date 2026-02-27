@@ -245,7 +245,6 @@ const handleCapaUpload = (e) => {
 };
 
 const criarCurso = async () => {
-  // ADICIONE ESTAS LINHAS ABAIXO:
   const formData = new FormData();
   formData.append("titulo", novoCurso.value.titulo);
   formData.append("descricao", novoCurso.value.descricao);
@@ -300,7 +299,6 @@ onMounted(carregarCursos);
 </script>
 
 <style scoped>
-/* CORES E VARIÁVEIS */
 :root {
   --primary: #3b82f6;
   --secondary: #0f172a;
@@ -313,7 +311,6 @@ onMounted(carregarCursos);
   margin: 2rem auto;
 }
 
-/* HEADER */
 .header-section {
   background:var(--primary);
   color: white;
