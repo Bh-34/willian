@@ -10,6 +10,8 @@ import Curso from '@/views/Curso.vue'
 import AulaView from '@/views/Aula.vue'
 import meusCursos from '@/views/meusCursos.vue'
 import AdminPlanos from '@/views/AdminPlanos.vue'
+import AdminUsuarios from '@/views/AdminUsuarios.vue'
+import ProfessorDash from '@/views/ProfessorDashboard.vue'
 
 
 const routes = [
@@ -22,7 +24,9 @@ const routes = [
   {path: '/cursos/:id',name: 'curso',component: Curso,meta: { requiresAuth: true }},
   {path: '/meus-cursos',name: 'meuscursos',component: meusCursos,meta: { requiresAuth: true }},
   {path: '/aulas/:id',name: 'aula',component: AulaView,meta: { requiresAuth: true, requiresPlano: true }},
-  {path: '/admin/planos',component: AdminPlanos,meta: { requiresAdmin: true }}
+  {path: '/admin/planos',component: AdminPlanos,meta: { requiresAdmin: true }},
+  {path: '/admin/usuarios',component: AdminUsuarios,meta: { requiresAdmin: true }},
+  {path: '/professor',component: ProfessorDash,meta: { requiresProfessor: true }}
 ]
 
 const router = createRouter({

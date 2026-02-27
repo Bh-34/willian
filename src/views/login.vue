@@ -67,21 +67,28 @@ export default defineComponent({
     const error = ref('')
     const router = useRouter()
     const route = useRoute()
+    
 
     async function submit() {
-      error.value = ''
-      loading.value = true
+  error.value = ''
+  loading.value = true
 
-      try {
-        await login(email.value, senha.value)
-        const redirect = (route.query.redirect as string) || '/'
-        router.push(redirect)
-      } catch (e: any) {
-        error.value = e.message
-      } finally {
-        loading.value = false
-      }
+  try {
+    await login(email.value, senha.value)
+    const redirect = (route.query.redirect as string) || '/'
+    router.push(redirect)
+  } catch (err: any) {
+    if (err.response && err.response.status === 401) {
+      error.value = err.response.data.message 
+    } else if (err.response && err.response.status === 404) {
+      error.value = "Usuário não encontrado."
+    } else {
+      error.value = "Ocorreu um erro inesperado. Tente novamente."
     }
+  } finally {
+    loading.value = false
+  }
+}
 
     
 

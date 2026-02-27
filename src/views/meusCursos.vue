@@ -1,19 +1,15 @@
 <template>
   <div class="dashboard">
-
-    <!-- HEADER -->
     <section class="header-section">
       <div class="header-content">
         <div>
           <h1>Meus Cursos</h1>
-          <p class="muted">Acompanhe seu progresso</p>
+          <p class="muted">Acompanhe seu progresso e continue aprendendo</p>
         </div>
       </div>
     </section>
 
     <div class="branco">
-
-      <!-- BUSCA -->
       <section class="section search-section">
         <div class="search-container">
           <input
@@ -22,121 +18,92 @@
             placeholder="Buscar nos meus cursos..."
             class="search-input"
           />
-          <span v-if="search" class="search-clear" @click="search = ''">✕</span>
-        </div>
-
-        <div class="section-header">
-          <p class="muted">
-            {{ cursosFiltrados.length }}
-            curso{{ cursosFiltrados.length !== 1 ? 's' : '' }}
-          </p>
         </div>
       </section>
 
-      <!-- LISTA DE CURSOS -->
       <section class="section">
         <div v-if="cursosFiltrados.length > 0" class="courses-grid">
-       <div
-  v-for="curso in cursosFiltrados"
-  :key="curso.id"
-  class="course-card"
->
-  <div @click="abrirCurso(curso)">
-    <h3>{{ curso.titulo }}</h3>
-    <p class="course-desc">{{ curso.descricao }}</p>
+          <div
+            v-for="curso in cursosFiltrados"
+            :key="curso.id"
+            class="course-card"
+          >
+            <div @click="abrirCurso(curso)">
+              <h3>{{ curso.titulo }}</h3>
+              <p class="course-desc">{{ curso.descricao }}</p>
 
-    <div class="progress-container">
-      <div class="progress-bar">
-        <div
-          class="progress-fill"
-          :style="{ width: (curso.progresso || 0) + '%' }"
-        ></div>
-      </div>
-      <span class="progress-text">
-        {{ curso.progresso || 0 }}%
-      </span>
-    </div>
-  </div>
+              <div class="progress-container">
+                <div class="progress-info">
+                  <span class="progress-label">Seu progresso</span>
+                  <span class="progress-value"
+                    >{{ curso.progresso || 0 }}%</span
+                  >
+                </div>
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill"
+                    :style="{ width: (curso.progresso || 0) + '%' }"
+                  ></div>
+                </div>
+              </div>
+            </div>
 
-  <button
-    class="remover-btn"
-    @click="removerCurso(curso.id)"
-  >
-    Remover dos meus cursos
-  </button>
-</div>
-
+            <button class="remover-btn" @click="removerCurso(curso.id)">
+              Remover dos favoritos
+            </button>
+          </div>
         </div>
 
         <div v-else class="empty-state">
-          <p>
-            Nenhum curso encontrado com
-            "<strong>{{ search }}</strong>"
-          </p>
+          <p>Nenhum curso encontrado.</p>
         </div>
       </section>
-
     </div>
   </div>
 </template>
+
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '@/services/api'
+import { defineComponent, ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import api from "@/services/api";
 
 export default defineComponent({
   setup() {
-    const router = useRouter()
-
-    const cursos = ref<any[]>([])
-    const search = ref('')
-    const loading = ref(true)
+    const router = useRouter();
+    const cursos = ref<any[]>([]);
+    const search = ref("");
 
     const cursosFiltrados = computed(() =>
-      cursos.value.filter(c =>
-        c.titulo.toLowerCase().includes(search.value.toLowerCase())
-      )
-    )
+      cursos.value.filter((c) =>
+        c.titulo.toLowerCase().includes(search.value.toLowerCase()),
+      ),
+    );
 
     async function carregarCursos() {
       try {
-        const res = await api.get('/meus-cursos-salvos')
-        cursos.value = res.data
-      } catch (e) {
-        console.warn('Erro ao carregar cursos', e)
-      } finally {
-        loading.value = false
-      }
+        const res = await api.get("/meus-cursos-salvos");
+        cursos.value = res.data;
+      } catch (e) {}
     }
 
     async function removerCurso(id: number) {
-      try {
-        await api.post(`/cursos/${id}/salvar`)
-        cursos.value = cursos.value.filter(c => c.id !== id)
-      } catch (e) {
-        console.warn('Erro ao remover curso', e)
+      if (confirm("Deseja remover este curso dos seus favoritos?")) {
+        try {
+          await api.post(`/cursos/${id}/salvar`);
+          cursos.value = cursos.value.filter((c) => c.id !== id);
+        } catch (e) {}
       }
     }
 
-    function abrirCurso(curso: any) {
-      router.push(`/cursos/${curso.id}`)
-    }
+    const abrirCurso = (curso: any) => router.push(`/cursos/${curso.id}`);
+    onMounted(carregarCursos);
 
-    onMounted(carregarCursos)
-
-    return {
-      cursosFiltrados,
-      search,
-      abrirCurso,
-      removerCurso,
-      loading
-    }
-  }
-})
+    return { cursosFiltrados, search, abrirCurso, removerCurso };
+  },
+});
 </script>
 
 <style scoped>
-
 .dashboard {
   display: flex;
   flex-direction: column;

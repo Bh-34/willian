@@ -27,11 +27,23 @@
              <router-link 
       v-if="isAdmin" 
       to="/admin/planos"
-      class="nav-link"
-    >
-      Admin
+      class="nav-link">
+      planos
     </router-link>
-             <router-link to="/meus-cursos" class="nav-link">meus cursos</router-link>
+
+    <router-link 
+      v-if="isAdmin" 
+      to="/admin/usuarios"
+      class="nav-link">
+      usuarios
+    </router-link>
+     <router-link 
+     class="nav-link"
+         v-if="user?.role === 'professor' || user?.admin === 1"
+       to="/professor">
+       Painel Professor
+      </router-link>
+             <router-link to="/meus-cursos" class="nav-link">Favoritos</router-link>
             <span class="user-name">{{ userName }}</span>
             <button class="btn-logout" @click="doLogout">Sair</button>
           </div>
@@ -72,7 +84,8 @@ const isAdmin = computed(() => {
       userName,
       doLogout,
       mobileMenuOpen,
-      isAdmin
+      isAdmin,
+      user
     }
   }
 })

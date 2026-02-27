@@ -60,11 +60,6 @@
     </div>
 </section>
 
-<!-- BUSCA -->
-    
-
-
-<!-- CURSOS -->
     <section class="section">
       
       <section class="section search-section">
@@ -83,22 +78,38 @@
     </div>
       </section>
       <div v-if="cursosFiltrados.length > 0" class="courses-grid">
-        <div
-        v-for="curso in cursosFiltrados"
-        :key="curso.id"
-        class="course-card"
-        @click="abrirCurso(curso)"
-        >
-        <div class="course-header">
-            <span class="course-icon"></span>
-            <span v-if="!hasPlano" class="lock-badge">🔒</span>
-          </div>
-          <h3>{{ curso.titulo }}</h3>
-          <p class="course-desc">{{ curso.descricao }}</p>
-          <div v-if="!hasPlano" class="course-footer">
-            <span class="lock-text">Assine para acessar</span>
-          </div>
-        </div>
+      <div
+  v-for="curso in cursosFiltrados"
+  :key="curso.id"
+  class="course-card"
+  @click="abrirCurso(curso)"
+>
+  <div class="course-header-img">
+    <img 
+      v-if="curso.capa" 
+      :src="`http://localhost:8000/storage/${curso.capa}`" 
+      class="course-image"
+    />
+    <div v-else class="course-image-placeholder">
+      📚
+    </div>
+    <span v-if="!hasPlano" class="lock-badge-overlay">🔒</span>
+  </div>
+
+  <div class="course-body">
+    <h3>{{ curso.titulo }}</h3>
+    <div class="course-rating">
+    <span class="star-icon">★</span>
+    <span class="rating-value">{{ curso.media_notas }}</span>
+    <span class="rating-count">({{ curso.total_avaliacoes }})</span>
+  </div>
+    <p class="course-desc">{{ curso.descricao }}</p>
+    
+    <div v-if="!hasPlano" class="course-footer">
+      <span class="lock-text">Assine para acessar</span>
+    </div>
+  </div>
+</div>
       </div>
       
       <div v-else class="empty-state">
@@ -125,7 +136,9 @@ export default defineComponent({
     const cursos = ref<any[]>([])
     const search = ref('')
 
-    const hasPlano = computed(() => !!user.value?.plano_id)
+    const hasPlano = computed(() => {
+  return !!user.value?.plano_id || user.value?.role === 'admin'
+})
 
     const cursosFiltrados = computed(() =>
       cursos.value.filter(c =>
@@ -249,6 +262,37 @@ async function carregarDados() {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   margin-top: 1rem;
+}
+
+/* Adicione junto aos outros estilos de curso */
+
+.course-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.star-icon {
+  color: #fbbf24; /* Cor amarela das estrelas */
+  font-size: 1.1rem;
+}
+
+.rating-value {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.rating-count {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+/* Ajuste opcional para o título não ficar colado na média */
+.course-card h3 {
+  margin-bottom: 0.2rem;
 }
 
 .courses-grid {
@@ -415,12 +459,34 @@ async function carregarDados() {
 /* CURSOS */
 .course-card {
   background: white;
-  border-radius: 6px;
-  padding: 2rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden; 
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   border: 1px solid #e2e8f0;
-  border-bottom: 2px solid  #0F172A;
+  border-bottom: 3px solid #0F172A;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.course-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: linear-gradient(45deg, #e2e8f0, #cbd5e1);
+}
+
+.course-header-img {
+  width: 100%;
+  height: 180px;
+  position: relative;
+  background: #f1f5f9;
+}
+.course-body {
+  padding: 1.5rem;
 }
 
 .course-card:hover {
@@ -429,12 +495,49 @@ async function carregarDados() {
 }
 
 .course-card h3 {
-  font-weight: 800;
-  color: var(--text-primary);
+  margin-top: 0;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
 }
 
 .lock-text {
   color: var(--text-tertiary);
+}
+
+.lock-badge-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 5px 8px;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.course-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  display: block;
+}
+
+.course-header-img {
+  width: 100%;
+  height: 180px; 
+  position: relative;
+  overflow: hidden; 
+  background: #f1f5f9;
+}
+
+.course-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* EMPTY STATE */
