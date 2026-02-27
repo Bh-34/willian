@@ -1,4 +1,4 @@
-# 🎓 Tech Store - Plataforma Premium de Educação Online
+# 🎓 Next class - Plataforma Premium de Educação Online
 
 Uma aplicação web moderna e responsiva para gestão de cursos, aulas e planos de aprendizado. Desenvolvida com **Vue 3**, **Vite** e um design system profissional premium.
 
@@ -6,7 +6,7 @@ Uma aplicação web moderna e responsiva para gestão de cursos, aulas e planos 
 
 ## 📋 Visão Geral
 
-O **Tech Store** é uma plataforma educacional completa que permite aos usuários:
+O **Mex class** é uma plataforma educacional completa que permite aos usuários:
 - 📚 Navegar e se inscrever em cursos
 - 🎥 Assistir aulas e conteúdos educacionais
 - 💳 Gerenciar planos e assinaturas
@@ -235,5 +235,10 @@ Para dúvidas ou problemas, entre em contato com a equipe de desenvolvimento.
 
 ---
 
-**Desenvolvido com ❤️ usando Vue.js e Vite**
+**É os guri do senevers**
+
+
+
+
+
 
